@@ -136,6 +136,11 @@ class NewsController extends Controller
             'published_at' => 'nullable|date',
         ]);
 
+        // Generate slug if not provided or if title changed
+        if (empty($validated['slug']) || $validated['title'] !== $news->title) {
+            $validated['slug'] = Str::slug($validated['title']) . '-' . Str::random(6);
+        }
+
         // Set publish date if publishing for first time
         if ($validated['is_published'] && !$news->is_published && empty($validated['published_at'])) {
             $validated['published_at'] = now();

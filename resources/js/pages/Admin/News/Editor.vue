@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import TiptapEditor from '@/components/ui/tiptap-editor/TiptapEditor.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import {
     ArrowLeft,
@@ -318,11 +319,10 @@ const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita
                         <!-- Content Body -->
                         <div class="space-y-2">
                             <Label for="content">Isi Berita <span class="text-destructive">*</span></Label>
-                            <Textarea id="content" v-model="form.content"
-                                placeholder="Tulis isi berita lengkap di sini..." :rows="15" class="font-serif"
-                                :class="{ 'border-destructive': form.errors.content }" />
+                            <TiptapEditor v-model="form.content" placeholder="Tulis isi berita lengkap di sini..."
+                                min-height="400px" :class="{ 'ring-2 ring-destructive': form.errors.content }" />
                             <p class="text-xs text-muted-foreground">
-                                Mendukung format HTML dasar untuk styling
+                                Gunakan toolbar di atas untuk formatting. Konten akan disimpan sebagai HTML.
                             </p>
                             <p v-if="form.errors.content" class="text-sm text-destructive">
                                 {{ form.errors.content }}

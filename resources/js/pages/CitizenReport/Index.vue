@@ -33,7 +33,7 @@
         <!-- Empty State -->
         <EmptyState v-if="!reports.data.length" title="Belum Ada Laporan"
             description="Jadilah warga yang aktif! Laporkan kejadian di sekitarmu agar warga lain tahu."
-            icon="fa-solid fa-bullhorn" action-label="Buat Laporan" @action="createReport" />
+            :lucide-icon="Megaphone" action-label="Buat Laporan" :show-action-for-all="true" @action="createReport" />
 
         <div v-else>
             <!-- Popular Reports -->
@@ -92,9 +92,10 @@
 
 <script setup>
 import { Head } from '@inertiajs/vue3';
+import { Megaphone } from 'lucide-vue-next';
 import MainLayout from '@/layouts/MainLayout.vue';
-import EmptyState from '@/Components/EmptyState.vue';
-import StatusBadge from '@/Components/StatusBadge.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 
 defineOptions({ layout: MainLayout });
 

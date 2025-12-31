@@ -1,6 +1,6 @@
 <template>
     <section class="grid grid-cols-12 gap-4 sm:gap-6 mb-12 sm:mb-20">
-        <div
+        <Link :href="headlineHref"
             class="col-span-12 lg:col-span-8 group relative overflow-hidden rounded-[2.5rem] bg-slate-900 shadow-2xl h-[450px] sm:h-[550px] lg:h-[650px]">
             <img :src="imageUrl"
                 class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-[2s]"
@@ -15,12 +15,12 @@
                 <h1 class="text-fluid-h1 font-black text-white tracking-tight mb-4 sm:mb-8 drop-shadow-2xl">
                     {{ headlineTitle }}
                 </h1>
-                <button
-                    class="bg-white text-slate-950 px-6 sm:px-10 py-3 sm:py-4 rounded-full font-black text-xs sm:text-sm hover:bg-indigo-50 active:scale-95 transition-all shadow-xl">
+                <span
+                    class="inline-block bg-white text-slate-950 px-6 sm:px-10 py-3 sm:py-4 rounded-full font-black text-xs sm:text-sm group-hover:bg-indigo-50 transition-all shadow-xl">
                     Baca Berita Lengkap
-                </button>
+                </span>
             </div>
-        </div>
+        </Link>
 
         <div class="col-span-12 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6">
             <div
@@ -48,7 +48,10 @@
 </template>
 
 <script setup>
-defineProps({
+import { Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
+const props = defineProps({
     headlineTitle: {
         type: String,
         required: true
@@ -60,6 +63,12 @@ defineProps({
     category: {
         type: String,
         default: 'Headline'
+    },
+    slug: {
+        type: String,
+        default: ''
     }
 });
+
+const headlineHref = computed(() => props.slug ? `/berita/${props.slug}` : '#');
 </script>

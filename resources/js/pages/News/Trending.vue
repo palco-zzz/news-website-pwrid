@@ -11,7 +11,8 @@
                     <i class="fa-solid fa-fire"></i>
                 </div>
                 <h2 class="text-3xl sm:text-5xl font-black text-slate-950 tracking-tighter italic uppercase">Trending
-                    <span class="text-indigo-600">Sekarang</span></h2>
+                    <span class="text-indigo-600">Sekarang</span>
+                </h2>
             </div>
             <p class="text-slate-500 font-bold text-sm tracking-wide uppercase opacity-60">Paling banyak dibicarakan
                 warga Purworejo hari ini.</p>
@@ -20,7 +21,7 @@
         <!-- Empty State -->
         <EmptyState v-if="!trendingNews.data.length" title="Belum Ada yang Viral"
             description="Sepertinya hari ini Purworejo sedang adem ayem. Belum ada berita yang meledak."
-            icon="fa-solid fa-fire-flame-curved" action-label="Cari Berita" @action="goToHome" />
+            :lucide-icon="Flame" action-label="Jelajahi Beranda" action-link="/" :show-action-for-all="true" />
 
         <div v-else>
             <!-- Top Stories -->
@@ -62,8 +63,9 @@
 
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
+import { Flame, Home } from 'lucide-vue-next';
 import MainLayout from '@/layouts/MainLayout.vue';
-import EmptyState from '@/Components/EmptyState.vue';
+import EmptyState from '@/components/EmptyState.vue';
 
 defineOptions({ layout: MainLayout });
 

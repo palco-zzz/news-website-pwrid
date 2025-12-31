@@ -264,23 +264,26 @@ const authorInitials = computed(() => {
                     </figure>
 
                     <!-- Article Body with Typography -->
-                    <div class="prose prose-lg prose-slate max-w-none
+                    <div class="prose prose-slate lg:prose-xl max-w-none
                                prose-headings:font-black prose-headings:tracking-tight prose-headings:text-slate-900
-                               prose-h2:text-2xl prose-h2:sm:text-3xl prose-h2:mt-12 prose-h2:mb-4
-                               prose-h3:text-xl prose-h3:sm:text-2xl prose-h3:mt-8 prose-h3:mb-3
-                               prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-2
-                               prose-p:text-slate-700 prose-p:leading-relaxed prose-p:text-base prose-p:sm:text-lg
-                               prose-a:text-indigo-600 prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+                               prose-h2:text-2xl prose-h2:sm:text-3xl prose-h2:lg:text-4xl prose-h2:mt-12 prose-h2:mb-6
+                               prose-h3:text-xl prose-h3:sm:text-2xl prose-h3:lg:text-3xl prose-h3:mt-10 prose-h3:mb-4
+                               prose-h4:text-lg prose-h4:lg:text-xl prose-h4:mt-8 prose-h4:mb-3
+                               prose-p:text-slate-700 prose-p:leading-[1.85] prose-p:text-base prose-p:sm:text-lg prose-p:lg:text-xl prose-p:mb-6
+                               prose-a:text-indigo-600 prose-a:font-bold prose-a:no-underline hover:prose-a:underline hover:prose-a:text-indigo-700
                                prose-strong:text-slate-900 prose-strong:font-bold
-                               prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 prose-blockquote:rounded-r-2xl prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:not-italic prose-blockquote:text-slate-700
-                               prose-img:rounded-3xl prose-img:shadow-xl prose-img:shadow-slate-200/50
-                               prose-figure:my-8
-                               prose-figcaption:text-center prose-figcaption:text-sm prose-figcaption:text-slate-500 prose-figcaption:mt-3
-                               prose-ul:my-6 prose-ol:my-6
+                               prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 prose-blockquote:rounded-r-2xl prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:not-italic prose-blockquote:text-slate-700
+                               prose-img:rounded-[2rem] prose-img:shadow-lg prose-img:shadow-slate-300/50 prose-img:my-8
+                               prose-figure:my-10
+                               prose-figcaption:text-center prose-figcaption:text-sm prose-figcaption:text-slate-500 prose-figcaption:mt-4
+                               prose-ul:my-8 prose-ol:my-8 prose-ul:space-y-2 prose-ol:space-y-2
                                prose-li:text-slate-700 prose-li:leading-relaxed prose-li:marker:text-indigo-500
-                               prose-hr:border-slate-200 prose-hr:my-10
-                               prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-indigo-600 prose-code:font-medium prose-code:before:content-none prose-code:after:content-none
-                               prose-pre:bg-slate-900 prose-pre:rounded-2xl prose-pre:shadow-lg" v-html="news.content">
+                               prose-hr:border-slate-200 prose-hr:my-12
+                               prose-code:bg-slate-100 prose-code:px-2 prose-code:py-1 prose-code:rounded-lg prose-code:text-indigo-600 prose-code:font-semibold prose-code:before:content-none prose-code:after:content-none
+                               prose-pre:bg-slate-900 prose-pre:rounded-2xl prose-pre:shadow-xl prose-pre:my-8
+                               prose-video:rounded-[2rem] prose-video:shadow-lg prose-video:aspect-video
+                               [&_iframe]:rounded-[2rem] [&_iframe]:shadow-lg [&_iframe]:aspect-video [&_iframe]:w-full [&_iframe]:my-8"
+                        v-html="news.content">
                     </div>
 
                     <!-- Tags -->
