@@ -94,6 +94,7 @@ watch(() => form.title, (newTitle) => {
 // Image upload placeholder
 const imagePreview = ref<string | null>(props.news?.image ?? null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
+const isDragging = ref(false);
 
 const handleImageSelect = () => {
     fileInputRef.value?.click();
@@ -103,14 +104,63 @@ const handleImageChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
     if (file) {
-        // For now, just create a preview URL
-        // In production, you would upload to server/storage
-        imagePreview.value = URL.createObjectURL(file);
-        form.image = file.name; // Placeholder - actual upload logic needed
+        processImageFile(file);
+    }
+};
+
+const processImageFile = (file: File) => {
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+        alert('Format file tidak didukung. Gunakan JPG, PNG, WEBP, atau GIF.');
+        return;
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        alert('Ukuran file terlalu besar. Maksimal 5MB.');
+        return;
+    }
+
+    // Create preview URL
+    if (imagePreview.value && imagePreview.value.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview.value);
+    }
+    imagePreview.value = URL.createObjectURL(file);
+    form.image = file.name; // Placeholder - actual upload logic needed
+};
+
+// Drag and drop handlers
+const handleDragEnter = (event: DragEvent) => {
+    event.preventDefault();
+    isDragging.value = true;
+};
+
+const handleDragLeave = (event: DragEvent) => {
+    event.preventDefault();
+    isDragging.value = false;
+};
+
+const handleDragOver = (event: DragEvent) => {
+    event.preventDefault();
+    isDragging.value = true;
+};
+
+const handleDrop = (event: DragEvent) => {
+    event.preventDefault();
+    isDragging.value = false;
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+        processImageFile(files[0]);
     }
 };
 
 const removeImage = () => {
+    if (imagePreview.value && imagePreview.value.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview.value);
+    }
     imagePreview.value = null;
     form.image = '';
     if (fileInputRef.value) {
@@ -293,26 +343,88 @@ const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <input ref="fileInputRef" type="file" accept="image/*" class="hidden"
-                            @change="handleImageChange" />
+                        <input ref="fileInputRef" type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+                            class="hidden" @change="handleImageChange" />
 
-                        <div v-if="imagePreview" class="relative">
-                            <img :src="imagePreview" alt="Preview" class="w-full h-64 object-cover rounded-lg" />
-                            <Button variant="destructive" size="icon" class="absolute top-2 right-2"
-                                @click="removeImage">
-                                <Trash2 class="h-4 w-4" />
-                            </Button>
+                        <!-- Image Preview -->
+                        <div v-if="imagePreview" class="space-y-4">
+                            <div class="relative group rounded-lg overflow-hidden border bg-muted">
+                                <img :src="imagePreview" alt="Preview"
+                                    class="w-full h-64 object-cover transition-transform group-hover:scale-105" />
+                                <!-- Overlay on hover -->
+                                <div
+                                    class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                    <Button variant="secondary" size="sm" @click="handleImageSelect">
+                                        <ImagePlus class="mr-2 h-4 w-4" />
+                                        Ganti Gambar
+                                    </Button>
+                                    <Button variant="destructive" size="sm" @click="removeImage">
+                                        <Trash2 class="mr-2 h-4 w-4" />
+                                        Hapus
+                                    </Button>
+                                </div>
+                            </div>
+                            <!-- Image info bar -->
+                            <div
+                                class="flex items-center justify-between rounded-lg border bg-muted/50 px-4 py-2 text-sm">
+                                <div class="flex items-center gap-2 text-muted-foreground">
+                                    <ImagePlus class="h-4 w-4" />
+                                    <span class="truncate max-w-[200px]">{{ form.image || 'gambar-berita.jpg' }}</span>
+                                </div>
+                                <Button variant="ghost" size="sm" class="h-7 text-destructive hover:text-destructive"
+                                    @click="removeImage">
+                                    <X class="h-4 w-4" />
+                                </Button>
+                            </div>
                         </div>
 
-                        <div v-else @click="handleImageSelect"
-                            class="border-2 border-dashed border-muted-foreground/25 rounded-lg p-12 text-center cursor-pointer hover:border-muted-foreground/50 transition-colors">
-                            <ImagePlus class="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                            <p class="text-sm font-medium text-muted-foreground">
-                                Klik untuk upload gambar
-                            </p>
-                            <p class="text-xs text-muted-foreground mt-1">
-                                PNG, JPG, WEBP hingga 5MB
-                            </p>
+                        <!-- Drag and Drop Zone -->
+                        <div v-else @click="handleImageSelect" @dragenter="handleDragEnter" @dragleave="handleDragLeave"
+                            @dragover="handleDragOver" @drop="handleDrop" :class="[
+                                'relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200',
+                                isDragging
+                                    ? 'border-primary bg-primary/5 scale-[1.02]'
+                                    : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50'
+                            ]">
+                            <!-- Animated background pattern when dragging -->
+                            <div v-if="isDragging"
+                                class="absolute inset-0 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 animate-pulse rounded-lg" />
+
+                            <div class="relative z-10 space-y-4">
+                                <!-- Icon -->
+                                <div :class="[
+                                    'mx-auto w-16 h-16 rounded-full flex items-center justify-center transition-colors',
+                                    isDragging ? 'bg-primary/20' : 'bg-muted'
+                                ]">
+                                    <ImagePlus :class="[
+                                        'h-8 w-8 transition-colors',
+                                        isDragging ? 'text-primary' : 'text-muted-foreground'
+                                    ]" />
+                                </div>
+
+                                <!-- Text -->
+                                <div>
+                                    <p :class="[
+                                        'font-medium transition-colors',
+                                        isDragging ? 'text-primary' : 'text-foreground'
+                                    ]">
+                                        {{ isDragging ? 'Lepaskan gambar di sini' : 'Drag & drop gambar di sini' }}
+                                    </p>
+                                    <p class="text-sm text-muted-foreground mt-1">
+                                        atau <span class="text-primary font-medium hover:underline">pilih file</span>
+                                        dari komputer
+                                    </p>
+                                </div>
+
+                                <!-- Supported formats -->
+                                <div class="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                                    <span class="px-2 py-1 rounded bg-muted">JPG</span>
+                                    <span class="px-2 py-1 rounded bg-muted">PNG</span>
+                                    <span class="px-2 py-1 rounded bg-muted">WEBP</span>
+                                    <span class="px-2 py-1 rounded bg-muted">GIF</span>
+                                    <span class="text-muted-foreground/70">• Max 5MB</span>
+                                </div>
+                            </div>
                         </div>
 
                         <p v-if="form.errors.image" class="text-sm text-destructive mt-2">

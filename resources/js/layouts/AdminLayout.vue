@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/tooltip';
 import { getInitials } from '@/composables/useInitials';
 import { urlIsActive } from '@/lib/utils';
+import admin from '@/routes/admin';
 import type { BreadcrumbItem, NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 import {
@@ -76,27 +77,27 @@ const searchQuery = ref('');
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/admin',
+        href: admin.dashboard().url,
         icon: Home,
     },
     {
         title: 'Berita',
-        href: '/admin/news',
+        href: admin.news.index().url,
         icon: FileText,
     },
     {
         title: 'UMKM',
-        href: '/admin/umkm',
+        href: admin.umkm.index().url,
         icon: Store,
     },
     {
         title: 'Info Warga',
-        href: '/admin/citizen-reports',
+        href: admin.citizenReports.index().url,
         icon: Megaphone,
     },
     {
         title: 'Agenda',
-        href: '/admin/agenda',
+        href: admin.agenda.index().url,
         icon: Calendar,
     },
 ];
@@ -104,7 +105,7 @@ const mainNavItems: NavItem[] = [
 const settingsNavItems: NavItem[] = [
     {
         title: 'Settings',
-        href: '/admin/settings',
+        href: admin.settings.index().url,
         icon: Settings,
     },
 ];
@@ -119,7 +120,7 @@ const settingsNavItems: NavItem[] = [
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" as-child>
-                                <Link href="/admin" class="flex items-center gap-3">
+                                <Link :href="admin.dashboard().url" class="flex items-center gap-3">
                                     <div
                                         class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold shadow-md">
                                         P
@@ -196,7 +197,7 @@ const settingsNavItems: NavItem[] = [
                                             class="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                                             <span class="truncate font-semibold">{{ user?.name ?? 'Admin' }}</span>
                                             <span class="truncate text-xs text-muted-foreground">{{ user?.email ?? ''
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <ChevronsUpDown class="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
                                     </SidebarMenuButton>
