@@ -41,6 +41,7 @@ interface News {
     excerpt: string;
     content: string;
     image: string | null;
+    image_url: string | null;
     category: string;
     is_headline: boolean;
     is_trending: boolean;
@@ -64,7 +65,7 @@ const form = useForm({
     slug: props.news?.slug ?? '',
     excerpt: props.news?.excerpt ?? '',
     content: props.news?.content ?? '',
-    image: props.news?.image ?? '',
+    image: null as File | null,
     category: props.news?.category ?? 'Berita',
     is_headline: props.news?.is_headline ?? false,
     is_trending: props.news?.is_trending ?? false,
@@ -93,7 +94,7 @@ watch(() => form.title, (newTitle) => {
 });
 
 // Image upload placeholder
-const imagePreview = ref<string | null>(props.news?.image ?? null);
+const imagePreview = ref<string | null>(props.news?.image_url ?? null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
 
@@ -129,7 +130,7 @@ const processImageFile = (file: File) => {
         URL.revokeObjectURL(imagePreview.value);
     }
     imagePreview.value = URL.createObjectURL(file);
-    form.image = file.name; // Placeholder - actual upload logic needed
+    form.image = file; // Store actual File object for upload
 };
 
 // Drag and drop handlers
@@ -163,7 +164,7 @@ const removeImage = () => {
         URL.revokeObjectURL(imagePreview.value);
     }
     imagePreview.value = null;
-    form.image = '';
+    form.image = null;
     if (fileInputRef.value) {
         fileInputRef.value.value = '';
     }
@@ -189,14 +190,19 @@ const submitForm = (publish: boolean = false) => {
         form.published_at = new Date().toISOString();
     }
 
+    const options = {
+        preserveScroll: true,
+        forceFormData: true, // Force multipart/form-data for file upload
+    };
+
     if (props.isEditing && props.news?.id) {
-        form.put(`/admin/news/${props.news.id}`, {
-            preserveScroll: true,
-        });
+        // Use transform to add _method for PUT spoofing with file uploads
+        form.transform((data) => ({
+            ...data,
+            _method: 'PUT',
+        })).post(`/admin/news/${props.news.id}`, options);
     } else {
-        form.post('/admin/news', {
-            preserveScroll: true,
-        });
+        form.post('/admin/news', options);
     }
 };
 

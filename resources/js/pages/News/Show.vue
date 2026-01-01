@@ -30,6 +30,7 @@ interface News {
     excerpt: string;
     content: string;
     image: string | null;
+    image_url: string | null;
     image_caption?: string;
     category: string;
     tags?: string[];
@@ -44,6 +45,7 @@ interface RelatedNews {
     title: string;
     slug: string;
     image: string | null;
+    image_url: string | null;
     category: string;
     published_at: string;
 }
@@ -121,6 +123,28 @@ const copyLink = () => {
 
 const linkCopied = ref(false);
 
+// Fallback image
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&h=800&fit=crop&q=80';
+const mainImageError = ref(false);
+
+const mainImageSrc = computed(() => {
+    if (mainImageError.value || !props.news.image_url) {
+        return FALLBACK_IMAGE;
+    }
+    return props.news.image_url;
+});
+
+const handleMainImageError = () => {
+    mainImageError.value = true;
+};
+
+const getRelatedImageSrc = (related: RelatedNews, hasError: boolean) => {
+    if (hasError || !related.image_url) {
+        return FALLBACK_IMAGE;
+    }
+    return related.image_url;
+};
+
 // Author initials
 const authorInitials = computed(() => {
     if (!props.news.author?.name) return '?';
@@ -140,7 +164,7 @@ const authorInitials = computed(() => {
         <meta name="description" :content="news.excerpt" />
         <meta property="og:title" :content="news.title" />
         <meta property="og:description" :content="news.excerpt" />
-        <meta property="og:image" :content="news.image ?? ''" />
+        <meta property="og:image" :content="news.image_url ?? ''" />
         <meta property="og:type" content="article" />
     </Head>
 
@@ -253,10 +277,11 @@ const authorInitials = computed(() => {
                     </div>
 
                     <!-- Featured Image -->
-                    <figure v-if="news.image" class="mb-10">
+                    <figure class="mb-10">
                         <div
-                            class="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-300/50 aspect-video">
-                            <img :src="news.image" :alt="news.title" class="w-full h-full object-cover" />
+                            class="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-300/50 aspect-video bg-slate-100">
+                            <img :src="mainImageSrc" :alt="news.title" loading="lazy" class="w-full h-full object-cover"
+                                @error="handleMainImageError" />
                         </div>
                         <figcaption v-if="news.image_caption" class="mt-4 text-center text-sm text-slate-500 italic">
                             {{ news.image_caption }}
@@ -364,14 +389,8 @@ const authorInitials = computed(() => {
                                 class="group flex gap-4 p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors">
                                 <!-- Thumbnail -->
                                 <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
-                                    <img v-if="related.image" :src="related.image" :alt="related.title"
+                                    <img :src="related.image_url || FALLBACK_IMAGE" :alt="related.title" loading="lazy"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                                    <div v-else class="w-full h-full flex items-center justify-center text-slate-400">
-                                        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
                                 </div>
 
                                 <!-- Content -->

@@ -47,8 +47,8 @@
                 <div v-for="news in trendingNews.data" :key="news.id"
                     class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg transition-shadow">
                     <div class="aspect-video bg-slate-100 overflow-hidden">
-                        <img :src="news.image || 'https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2069&auto=format&fit=crop'"
-                            :alt="news.title" class="w-full h-full object-cover">
+                        <img :src="news.image_url || 'https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2069&auto=format&fit=crop'"
+                            :alt="news.title" loading="lazy" class="w-full h-full object-cover">
                     </div>
                     <div class="p-5 space-y-3">
                         <span class="text-xs font-bold text-indigo-600 uppercase">{{ news.category }}</span>

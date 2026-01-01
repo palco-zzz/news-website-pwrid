@@ -2,9 +2,9 @@
     <section class="grid grid-cols-12 gap-4 sm:gap-6 mb-12 sm:mb-20">
         <Link :href="headlineHref"
             class="col-span-12 lg:col-span-8 group relative overflow-hidden rounded-[2.5rem] bg-slate-900 shadow-2xl h-[450px] sm:h-[550px] lg:h-[650px]">
-            <img :src="imageUrl"
+            <img :src="imageSrc" loading="lazy"
                 class="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-[2s]"
-                :alt="headlineTitle">
+                :alt="headlineTitle" @error="handleImageError">
             <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
             <div class="absolute top-4 sm:top-8 left-4 sm:left-8 flex flex-wrap gap-2">
                 <span
@@ -49,7 +49,9 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&h=800&fit=crop&q=80';
 
 const props = defineProps({
     headlineTitle: {
@@ -58,7 +60,7 @@ const props = defineProps({
     },
     imageUrl: {
         type: String,
-        required: true
+        default: null
     },
     category: {
         type: String,
@@ -69,6 +71,19 @@ const props = defineProps({
         default: ''
     }
 });
+
+const imageError = ref(false);
+
+const imageSrc = computed(() => {
+    if (imageError.value || !props.imageUrl) {
+        return FALLBACK_IMAGE;
+    }
+    return props.imageUrl;
+});
+
+const handleImageError = () => {
+    imageError.value = true;
+};
 
 const headlineHref = computed(() => props.slug ? `/berita/${props.slug}` : '#');
 </script>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,6 +32,15 @@ class News extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'image_url',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -43,6 +53,31 @@ class News extends Model
             'is_published' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the full URL for the news image.
+     */
+    protected function imageUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                // Return Unsplash fallback if no image
+                if (empty($this->image)) {
+                    return 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=600&fit=crop&q=80';
+                }
+
+                // If already a full URL, return as-is
+                if (str_starts_with($this->image, 'http://') || str_starts_with($this->image, 'https://')) {
+                    return $this->image;
+                }
+
+                // Strip 'public/' prefix if present and generate asset URL
+                $path = str_replace('public/', '', $this->image);
+
+                return asset('storage/' . $path);
+            }
+        );
     }
 
     /**

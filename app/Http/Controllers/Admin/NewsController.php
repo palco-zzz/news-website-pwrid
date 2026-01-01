@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\News;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -78,13 +79,18 @@ class NewsController extends Controller
             'slug' => 'nullable|string|max:255|unique:news,slug',
             'excerpt' => 'nullable|string|max:500',
             'content' => 'required|string',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,webp,gif|max:5120',
             'category' => 'required|string|max:100',
             'is_headline' => 'boolean',
             'is_trending' => 'boolean',
             'is_published' => 'boolean',
             'published_at' => 'nullable|date',
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('news', 'public');
+        }
 
         // Generate slug if not provided
         if (empty($validated['slug'])) {
@@ -128,13 +134,25 @@ class NewsController extends Controller
             'slug' => 'nullable|string|max:255|unique:news,slug,' . $news->id,
             'excerpt' => 'nullable|string|max:500',
             'content' => 'required|string',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,webp,gif|max:5120',
             'category' => 'required|string|max:100',
             'is_headline' => 'boolean',
             'is_trending' => 'boolean',
             'is_published' => 'boolean',
             'published_at' => 'nullable|date',
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($news->image && Storage::disk('public')->exists($news->image)) {
+                Storage::disk('public')->delete($news->image);
+            }
+            $validated['image'] = $request->file('image')->store('news', 'public');
+        } else {
+            // Keep existing image if no new file uploaded
+            unset($validated['image']);
+        }
 
         // Generate slug if not provided or if title changed
         if (empty($validated['slug']) || $validated['title'] !== $news->title) {

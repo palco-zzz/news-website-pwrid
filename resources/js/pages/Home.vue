@@ -2,7 +2,7 @@
 
     <Head title="Beranda" />
 
-    <BentoHero :headline-title="computedHeadline.title" :image-url="computedHeadline.image"
+    <BentoHero :headline-title="computedHeadline.title" :image-url="computedHeadline.imageUrl"
         :category="computedHeadline.category" :slug="computedHeadline.slug" />
 
     <!-- Feed Layout -->
@@ -11,7 +11,7 @@
             <h2 class="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">Terbaru di Kota</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <NewsCard v-for="(article, index) in computedArticles" :key="index" :title="article.title"
-                    :image="article.image" :slug="article.slug" />
+                    :image-url="article.imageUrl" :slug="article.slug" />
             </div>
         </div>
         <aside class="col-span-12 lg:col-span-4">
@@ -20,7 +20,8 @@
                 <div class="space-y-4">
                     <div v-for="(umkm, index) in computedFeaturedUmkm" :key="index" class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden">
-                            <img :src="umkm.image" class="w-full h-full object-cover" :alt="umkm.name">
+                            <img :src="umkm.imageUrl" loading="lazy" class="w-full h-full object-cover"
+                                :alt="umkm.name">
                         </div>
                         <span class="font-bold text-sm">{{ umkm.name }}</span>
                     </div>
@@ -34,8 +35,8 @@
 import { computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import MainLayout from '@/layouts/MainLayout.vue';
-import BentoHero from '@/Components/BentoHero.vue';
-import NewsCard from '@/Components/NewsCard.vue';
+import BentoHero from '@/components/BentoHero.vue';
+import NewsCard from '@/components/NewsCard.vue';
 
 defineOptions({ layout: MainLayout });
 
@@ -62,7 +63,7 @@ const props = defineProps({
 // Fallback data for when database is empty
 const fallbackHeadline = {
     title: "Jalur Utama Kutoarjo-Kebumen Siap Digunakan Menjelang Mudik Lebaran",
-    image: "https://images.unsplash.com/photo-1596464716127-f2a82984de30?q=80&w=2070&auto=format&fit=crop",
+    imageUrl: "https://images.unsplash.com/photo-1596464716127-f2a82984de30?q=80&w=2070&auto=format&fit=crop",
     category: "Headline",
     slug: ""
 };
@@ -70,12 +71,12 @@ const fallbackHeadline = {
 const fallbackArticles = [
     {
         title: "Harga Beras di Pasar Baledono Mulai Turun",
-        image: "https://images.unsplash.com/photo-1517404212328-3c662c1e677c?q=80&w=2070&auto=format&fit=crop",
+        imageUrl: "https://images.unsplash.com/photo-1517404212328-3c662c1e677c?q=80&w=2070&auto=format&fit=crop",
         slug: ""
     },
     {
         title: "Mempelajari Sejarah Bedug Pendowo Purworejo",
-        image: "https://images.unsplash.com/photo-1542362567-b05503f3f746?q=80&w=2070&auto=format&fit=crop",
+        imageUrl: "https://images.unsplash.com/photo-1542362567-b05503f3f746?q=80&w=2070&auto=format&fit=crop",
         slug: ""
     }
 ];
@@ -83,7 +84,7 @@ const fallbackArticles = [
 const fallbackUmkm = [
     {
         name: "Soto Winong Legendaris",
-        image: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1974&auto=format&fit=crop"
+        imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1974&auto=format&fit=crop"
     }
 ];
 
@@ -92,7 +93,7 @@ const computedHeadline = computed(() => {
     if (props.headline) {
         return {
             title: props.headline.title,
-            image: props.headline.image || fallbackHeadline.image,
+            imageUrl: props.headline.image_url || fallbackHeadline.imageUrl,
             category: props.headline.category || 'Headline',
             slug: props.headline.slug || ''
         };
@@ -104,7 +105,7 @@ const computedArticles = computed(() => {
     if (props.articles && props.articles.length > 0) {
         return props.articles.map(article => ({
             title: article.title,
-            image: article.image || 'https://images.unsplash.com/photo-1517404212328-3c662c1e677c?q=80&w=2070&auto=format&fit=crop',
+            imageUrl: article.image_url || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=500&fit=crop&q=80',
             slug: article.slug || ''
         }));
     }
@@ -115,7 +116,7 @@ const computedFeaturedUmkm = computed(() => {
     if (props.featuredUmkm && props.featuredUmkm.length > 0) {
         return props.featuredUmkm.map(umkm => ({
             name: umkm.name,
-            image: umkm.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1974&auto=format&fit=crop'
+            imageUrl: umkm.image_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1974&auto=format&fit=crop'
         }));
     }
     return fallbackUmkm;
