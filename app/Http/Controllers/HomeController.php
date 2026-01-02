@@ -21,9 +21,18 @@ class HomeController extends Controller
             ->latest()
             ->first();
 
-        // Get latest articles (excluding headline)
+        // Fallback: if no headline, use the latest published article
+        if (!$headline) {
+            $headline = News::published()
+                ->latest()
+                ->first();
+        }
+
+        // Get latest articles (excluding the current headline)
         $articles = News::published()
-            ->where('is_headline', false)
+            ->when($headline, function ($query) use ($headline) {
+                $query->where('id', '!=', $headline->id);
+            })
             ->latest()
             ->take(6)
             ->get();

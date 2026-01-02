@@ -87,10 +87,10 @@ class NewsController extends Controller
             'published_at' => 'nullable|date',
         ]);
 
-        // Convert string boolean values to actual booleans
-        $validated['is_headline'] = filter_var($request->input('is_headline', false), FILTER_VALIDATE_BOOLEAN);
-        $validated['is_trending'] = filter_var($request->input('is_trending', false), FILTER_VALIDATE_BOOLEAN);
-        $validated['is_published'] = filter_var($request->input('is_published', false), FILTER_VALIDATE_BOOLEAN);
+        // Convert checkbox values to booleans (handles missing values when unchecked)
+        $validated['is_headline'] = $request->boolean('is_headline');
+        $validated['is_trending'] = $request->boolean('is_trending');
+        $validated['is_published'] = $request->boolean('is_published');
 
         // Handle image upload
         if ($request->hasFile('image')) {
@@ -147,10 +147,10 @@ class NewsController extends Controller
             'published_at' => 'nullable|date',
         ]);
 
-        // Convert string boolean values to actual booleans
-        $validated['is_headline'] = filter_var($request->input('is_headline', false), FILTER_VALIDATE_BOOLEAN);
-        $validated['is_trending'] = filter_var($request->input('is_trending', false), FILTER_VALIDATE_BOOLEAN);
-        $validated['is_published'] = filter_var($request->input('is_published', false), FILTER_VALIDATE_BOOLEAN);
+        // Convert checkbox values to booleans (handles missing values when unchecked)
+        $validated['is_headline'] = $request->boolean('is_headline');
+        $validated['is_trending'] = $request->boolean('is_trending');
+        $validated['is_published'] = $request->boolean('is_published');
 
         // Handle image upload
         if ($request->hasFile('image')) {
@@ -191,5 +191,29 @@ class NewsController extends Controller
         return redirect()
             ->route('admin.news.index')
             ->with('success', 'Berita berhasil dihapus.');
+    }
+
+    /**
+     * Toggle a boolean status field on a news article.
+     */
+    public function toggleStatus(News $news, string $field): RedirectResponse
+    {
+        if (!in_array($field, ['is_headline', 'is_trending', 'is_published'])) {
+            return back()->with('error', 'Field tidak valid.');
+        }
+
+        $news->forceFill([
+            $field => !$news->{$field},
+        ])->save();
+
+        $labels = [
+            'is_headline' => 'Headline',
+            'is_trending' => 'Trending',
+            'is_published' => 'Publish',
+        ];
+
+        $status = $news->{$field} ? 'aktif' : 'nonaktif';
+
+        return back()->with('success', "{$labels[$field]} berhasil di{$status}kan.");
     }
 }

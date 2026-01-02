@@ -38,6 +38,7 @@ class News extends Model
      */
     protected $appends = [
         'image_url',
+        'status',
     ];
 
     /**
@@ -53,6 +54,16 @@ class News extends Model
             'is_published' => 'boolean',
             'published_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Get the article status.
+     */
+    protected function status(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->is_published ? 'published' : 'draft',
+        );
     }
 
     /**

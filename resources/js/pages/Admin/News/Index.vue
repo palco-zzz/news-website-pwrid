@@ -171,6 +171,17 @@ const handleDelete = (news: News) => {
     }
 };
 
+// Toggle headline/trending status
+const toggleStatus = (news: News, field: 'is_headline' | 'is_trending') => {
+    router.patch(`/admin/news/${news.id}/toggle/${field}`, {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            // Optional: Manual update if needed for instant feedback, 
+            // but Inertia reload will handle it.
+        }
+    });
+};
+
 // Pagination
 const goToPage = (url: string | null) => {
     if (url) {
@@ -277,11 +288,18 @@ const availableCategories = computed(() => props.categories ?? defaultCategories
                                             <div class="flex items-center gap-2">
                                                 <p class="font-medium truncate max-w-[250px]">{{ news.title }}</p>
                                                 <div class="flex items-center gap-1">
-                                                    <Star v-if="news.is_headline"
-                                                        class="h-4 w-4 fill-yellow-400 text-yellow-400"
-                                                        title="Headline" />
-                                                    <Flame v-if="news.is_trending" class="h-4 w-4 text-orange-500"
-                                                        title="Trending" />
+                                                    <button type="button" @click="toggleStatus(news, 'is_headline')"
+                                                        class="p-0.5 rounded hover:bg-yellow-100 transition-colors"
+                                                        :title="news.is_headline ? 'Hapus dari Headline' : 'Jadikan Headline'">
+                                                        <Star class="h-4 w-4 cursor-pointer transition-colors"
+                                                            :class="news.is_headline ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-yellow-400'" />
+                                                    </button>
+                                                    <button type="button" @click="toggleStatus(news, 'is_trending')"
+                                                        class="p-0.5 rounded hover:bg-orange-100 transition-colors"
+                                                        :title="news.is_trending ? 'Hapus dari Trending' : 'Jadikan Trending'">
+                                                        <Flame class="h-4 w-4 cursor-pointer transition-colors"
+                                                            :class="news.is_trending ? 'text-orange-500 fill-orange-500' : 'text-gray-300 hover:text-orange-500'" />
+                                                    </button>
                                                 </div>
                                             </div>
                                             <p class="text-xs text-muted-foreground">

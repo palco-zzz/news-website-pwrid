@@ -43,6 +43,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('/news/{news}/edit', [AdminNewsController::class, 'edit'])->name('news.edit');
     Route::put('/news/{news}', [AdminNewsController::class, 'update'])->name('news.update');
     Route::delete('/news/{news}', [AdminNewsController::class, 'destroy'])->name('news.destroy');
+    Route::patch('/news/{news}/toggle/{field}', [AdminNewsController::class, 'toggleStatus'])->name('news.toggle-status');
 
     // UMKM Management
     Route::get('/umkm', [AdminUmkmController::class, 'index'])->name('umkm.index');
