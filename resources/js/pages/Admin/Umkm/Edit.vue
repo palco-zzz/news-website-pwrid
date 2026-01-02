@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import AdminLayout from '@/layouts/AdminLayout.vue';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -15,86 +14,66 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import TiptapEditor from '@/components/ui/tiptap-editor/TiptapEditor.vue';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import {
     ArrowLeft,
-    Calendar,
-    Eye,
-    FileText,
     ImagePlus,
     Loader2,
+    MapPin,
+    Phone,
     Save,
-    Send,
-    Tag,
+    Store,
     Trash2,
     X,
 } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 
 defineOptions({ layout: AdminLayout });
 
-interface News {
-    id?: number;
-    title: string;
+interface Umkm {
+    id: number;
+    name: string;
     slug: string;
-    excerpt: string;
-    content: string;
+    description: string | null;
     image: string | null;
     image_url: string | null;
     category: string;
-    is_headline: boolean;
-    is_trending: boolean;
-    is_published: boolean;
-    published_at: string | null;
+    address: string | null;
+    phone: string | null;
+    whatsapp: string | null;
+    instagram: string | null;
+    latitude: number | null;
+    longitude: number | null;
+    is_verified: boolean;
+    is_active: boolean;
 }
 
 const props = defineProps<{
-    news?: News;
+    umkm: Umkm;
     categories?: string[];
-    isEditing?: boolean;
 }>();
 
 // Default categories
-const defaultCategories = ['Berita', 'Politik', 'Ekonomi', 'Olahraga', 'Hiburan', 'Teknologi', 'Kesehatan', 'Pendidikan'];
+const defaultCategories = ['Kuliner', 'Fashion', 'Kerajinan', 'Jasa', 'Pertanian', 'Lainnya'];
 const availableCategories = computed(() => props.categories ?? defaultCategories);
 
 // Form state
 const form = useForm({
-    title: props.news?.title ?? '',
-    slug: props.news?.slug ?? '',
-    excerpt: props.news?.excerpt ?? '',
-    content: props.news?.content ?? '',
+    name: props.umkm.name,
+    description: props.umkm.description ?? '',
     image: null as File | null,
-    category: props.news?.category ?? 'Berita',
-    is_headline: props.news?.is_headline ?? false,
-    is_trending: props.news?.is_trending ?? false,
-    is_published: props.news?.is_published ?? false,
-    published_at: props.news?.published_at ?? '',
+    category: props.umkm.category,
+    address: props.umkm.address ?? '',
+    phone: props.umkm.phone ?? '',
+    whatsapp: props.umkm.whatsapp ?? '',
+    instagram: props.umkm.instagram ?? '',
+    latitude: props.umkm.latitude ?? '',
+    longitude: props.umkm.longitude ?? '',
+    is_active: props.umkm.is_active,
 });
 
-// Tags input
-const tagsInput = ref('');
-const tags = ref<string[]>([]);
-
-// Auto-generate slug from title
-const generateSlug = (title: string) => {
-    return title
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
-};
-
-watch(() => form.title, (newTitle) => {
-    if (!props.isEditing || !form.slug) {
-        form.slug = generateSlug(newTitle);
-    }
-});
-
-// Image upload placeholder
-const imagePreview = ref<string | null>(props.news?.image_url ?? null);
+// Image upload
+const imagePreview = ref<string | null>(props.umkm.image_url ?? null);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
 
@@ -130,7 +109,7 @@ const processImageFile = (file: File) => {
         URL.revokeObjectURL(imagePreview.value);
     }
     imagePreview.value = URL.createObjectURL(file);
-    form.image = file; // Store actual File object for upload
+    form.image = file;
 };
 
 // Drag and drop handlers
@@ -170,110 +149,53 @@ const removeImage = () => {
     }
 };
 
-// Add tag
-const addTag = () => {
-    const tag = tagsInput.value.trim();
-    if (tag && !tags.value.includes(tag)) {
-        tags.value.push(tag);
-        tagsInput.value = '';
-    }
-};
-
-const removeTag = (index: number) => {
-    tags.value.splice(index, 1);
-};
-
 // Form submission
-const submitForm = (publish: boolean = false) => {
-    if (publish) {
-        form.is_published = true;
-        form.published_at = new Date().toISOString();
-    }
-
-    const options = {
+const submitForm = () => {
+    // Use transform to add _method for PUT spoofing with file uploads
+    form.transform((data) => ({
+        ...data,
+        _method: 'PUT',
+    })).post(`/admin/umkm/${props.umkm.id}`, {
         preserveScroll: true,
-        forceFormData: true, // Force multipart/form-data for file upload
-    };
-
-    if (props.isEditing && props.news?.id) {
-        // Use transform to add _method for PUT spoofing with file uploads
-        // Also explicitly convert boolean values to "1" or "0" for FormData
-        form.transform((data) => ({
-            ...data,
-            is_headline: data.is_headline ? '1' : '0',
-            is_trending: data.is_trending ? '1' : '0',
-            is_published: data.is_published ? '1' : '0',
-            _method: 'PUT',
-        })).post(`/admin/news/${props.news.id}`, options);
-    } else {
-        // Explicitly convert boolean values to "1" or "0" for FormData
-        form.transform((data) => ({
-            ...data,
-            is_headline: data.is_headline ? '1' : '0',
-            is_trending: data.is_trending ? '1' : '0',
-            is_published: data.is_published ? '1' : '0',
-        })).post('/admin/news', options);
-    }
+        forceFormData: true,
+    });
 };
-
-// Save as draft
-const saveDraft = () => {
-    form.is_published = false;
-    submitForm(false);
-};
-
-// Publish
-const publish = () => {
-    submitForm(true);
-};
-
-// Preview (placeholder)
-const preview = () => {
-    // Open preview in new tab
-    window.open(`/berita/${form.slug}?preview=true`, '_blank');
-};
-
-// Page title
-const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita Baru');
 </script>
 
 <template>
 
-    <Head :title="pageTitle" />
+    <Head title="Edit UMKM" />
 
     <div class="space-y-6">
         <!-- Page Header -->
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-4">
                 <Button variant="ghost" size="icon" as-child>
-                    <Link href="/admin/news">
+                    <Link href="/admin/umkm">
                         <ArrowLeft class="h-5 w-5" />
                     </Link>
                 </Button>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">{{ pageTitle }}</h1>
+                    <h1 class="text-2xl font-bold tracking-tight">Edit UMKM</h1>
                     <p class="text-muted-foreground">
-                        {{ isEditing ? 'Perbarui artikel berita' : 'Buat artikel berita baru untuk portal' }}
+                        Perbarui informasi UMKM "{{ umkm.name }}"
                     </p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
-                <Button variant="outline" @click="preview" :disabled="!form.slug">
-                    <Eye class="mr-2 h-4 w-4" />
-                    Preview
+                <Button variant="outline" as-child>
+                    <Link href="/admin/umkm">
+                        Batal
+                    </Link>
                 </Button>
-                <Button variant="outline" @click="saveDraft" :disabled="form.processing">
-                    <Save class="mr-2 h-4 w-4" />
-                    Simpan Draft
-                </Button>
-                <Button @click="publish" :disabled="form.processing">
+                <Button @click="submitForm" :disabled="form.processing">
                     <template v-if="form.processing">
                         <Loader2 class="mr-2 h-4 w-4 animate-spin" />
                         Menyimpan...
                     </template>
                     <template v-else>
-                        <Send class="mr-2 h-4 w-4" />
-                        Publish
+                        <Save class="mr-2 h-4 w-4" />
+                        Simpan Perubahan
                     </template>
                 </Button>
             </div>
@@ -283,65 +205,55 @@ const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita
         <div class="grid gap-6 lg:grid-cols-3">
             <!-- Main Content (Left - 2 columns) -->
             <div class="lg:col-span-2 space-y-6">
-                <!-- Title & Content Card -->
+                <!-- Basic Info Card -->
                 <Card>
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2">
-                            <FileText class="h-5 w-5" />
-                            Konten Berita
+                            <Store class="h-5 w-5" />
+                            Informasi UMKM
                         </CardTitle>
                         <CardDescription>
-                            Tulis judul dan isi berita Anda
+                            Perbarui informasi dasar tentang UMKM
                         </CardDescription>
                     </CardHeader>
                     <CardContent class="space-y-6">
-                        <!-- Title -->
+                        <!-- Name -->
                         <div class="space-y-2">
-                            <Label for="title">Judul Berita <span class="text-destructive">*</span></Label>
-                            <Input id="title" v-model="form.title" placeholder="Masukkan judul berita yang menarik..."
-                                class="text-lg" :class="{ 'border-destructive': form.errors.title }" />
-                            <p v-if="form.errors.title" class="text-sm text-destructive">
-                                {{ form.errors.title }}
+                            <Label for="name">Nama UMKM <span class="text-destructive">*</span></Label>
+                            <Input id="name" v-model="form.name" placeholder="Contoh: Warung Makan Bu Siti"
+                                :class="{ 'border-destructive': form.errors.name }" />
+                            <p v-if="form.errors.name" class="text-sm text-destructive">
+                                {{ form.errors.name }}
                             </p>
                         </div>
 
-                        <!-- Slug -->
+                        <!-- Category -->
                         <div class="space-y-2">
-                            <Label for="slug">URL Slug</Label>
-                            <div class="flex items-center gap-2">
-                                <span class="text-sm text-muted-foreground">/berita/</span>
-                                <Input id="slug" v-model="form.slug" placeholder="url-slug-berita"
-                                    class="font-mono text-sm" :class="{ 'border-destructive': form.errors.slug }" />
-                            </div>
-                            <p v-if="form.errors.slug" class="text-sm text-destructive">
-                                {{ form.errors.slug }}
+                            <Label>Kategori <span class="text-destructive">*</span></Label>
+                            <Select v-model="form.category">
+                                <SelectTrigger :class="{ 'border-destructive': form.errors.category }">
+                                    <SelectValue placeholder="Pilih kategori" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem v-for="category in availableCategories" :key="category"
+                                        :value="category">
+                                        {{ category }}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p v-if="form.errors.category" class="text-sm text-destructive">
+                                {{ form.errors.category }}
                             </p>
                         </div>
 
-                        <!-- Excerpt -->
+                        <!-- Description -->
                         <div class="space-y-2">
-                            <Label for="excerpt">Ringkasan / Excerpt</Label>
-                            <Textarea id="excerpt" v-model="form.excerpt"
-                                placeholder="Tulis ringkasan singkat berita (akan ditampilkan di preview)..." :rows="3"
-                                :class="{ 'border-destructive': form.errors.excerpt }" />
-                            <p class="text-xs text-muted-foreground">
-                                Maksimal 200 karakter. {{ form.excerpt.length }}/200
-                            </p>
-                            <p v-if="form.errors.excerpt" class="text-sm text-destructive">
-                                {{ form.errors.excerpt }}
-                            </p>
-                        </div>
-
-                        <!-- Content Body -->
-                        <div class="space-y-2">
-                            <Label for="content">Isi Berita <span class="text-destructive">*</span></Label>
-                            <TiptapEditor v-model="form.content" placeholder="Tulis isi berita lengkap di sini..."
-                                min-height="400px" :class="{ 'ring-2 ring-destructive': form.errors.content }" />
-                            <p class="text-xs text-muted-foreground">
-                                Gunakan toolbar di atas untuk formatting. Konten akan disimpan sebagai HTML.
-                            </p>
-                            <p v-if="form.errors.content" class="text-sm text-destructive">
-                                {{ form.errors.content }}
+                            <Label for="description">Deskripsi</Label>
+                            <Textarea id="description" v-model="form.description"
+                                placeholder="Jelaskan tentang UMKM ini, produk/layanan yang ditawarkan..." :rows="5"
+                                :class="{ 'border-destructive': form.errors.description }" />
+                            <p v-if="form.errors.description" class="text-sm text-destructive">
+                                {{ form.errors.description }}
                             </p>
                         </div>
                     </CardContent>
@@ -352,10 +264,10 @@ const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2">
                             <ImagePlus class="h-5 w-5" />
-                            Gambar Utama
+                            Gambar UMKM
                         </CardTitle>
                         <CardDescription>
-                            Upload gambar yang akan ditampilkan sebagai thumbnail
+                            Perbarui gambar yang merepresentasikan UMKM
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -385,7 +297,8 @@ const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita
                                 class="flex items-center justify-between rounded-lg border bg-muted/50 px-4 py-2 text-sm">
                                 <div class="flex items-center gap-2 text-muted-foreground">
                                     <ImagePlus class="h-4 w-4" />
-                                    <span class="truncate max-w-[200px]">{{ form.image || 'gambar-berita.jpg' }}</span>
+                                    <span class="truncate max-w-[200px]">{{ form.image?.name || 'gambar-umkm.jpg'
+                                    }}</span>
                                 </div>
                                 <Button variant="ghost" size="sm" class="h-7 text-destructive hover:text-destructive"
                                     @click="removeImage">
@@ -450,117 +363,126 @@ const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita
                 </Card>
             </div>
 
-            <!-- Metadata Sidebar (Right - 1 column) -->
+            <!-- Sidebar (Right - 1 column) -->
             <div class="space-y-6">
-                <!-- Category & Status Card -->
+                <!-- Status Card -->
                 <Card>
                     <CardHeader>
-                        <CardTitle>Kategori & Status</CardTitle>
+                        <CardTitle>Status</CardTitle>
                     </CardHeader>
                     <CardContent class="space-y-4">
-                        <!-- Category -->
+                        <!-- Active Toggle -->
+                        <div class="flex items-center justify-between">
+                            <div class="space-y-0.5">
+                                <Label>UMKM Aktif</Label>
+                                <p class="text-xs text-muted-foreground">
+                                    Tampilkan UMKM di halaman publik
+                                </p>
+                            </div>
+                            <Checkbox :checked="form.is_active" @update:checked="form.is_active = $event" />
+                        </div>
+
+                        <Separator />
+
+                        <!-- Verification Status (Read-only) -->
+                        <div class="rounded-lg bg-muted p-3">
+                            <p class="text-sm font-medium">Status Verifikasi</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span :class="[
+                                    'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                    umkm.is_verified
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-amber-100 text-amber-700'
+                                ]">
+                                    {{ umkm.is_verified ? 'Terverifikasi' : 'Pending' }}
+                                </span>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <!-- Location Card -->
+                <Card>
+                    <CardHeader>
+                        <CardTitle class="flex items-center gap-2">
+                            <MapPin class="h-5 w-5" />
+                            Lokasi
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent class="space-y-4">
+                        <!-- Address -->
                         <div class="space-y-2">
-                            <Label>Kategori <span class="text-destructive">*</span></Label>
-                            <Select v-model="form.category">
-                                <SelectTrigger :class="{ 'border-destructive': form.errors.category }">
-                                    <SelectValue placeholder="Pilih kategori" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem v-for="category in availableCategories" :key="category"
-                                        :value="category">
-                                        {{ category }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <p v-if="form.errors.category" class="text-sm text-destructive">
-                                {{ form.errors.category }}
+                            <Label for="address">Alamat Lengkap</Label>
+                            <Textarea id="address" v-model="form.address"
+                                placeholder="Jl. Contoh No. 123, Kelurahan, Kecamatan, Kota" :rows="3"
+                                :class="{ 'border-destructive': form.errors.address }" />
+                            <p v-if="form.errors.address" class="text-sm text-destructive">
+                                {{ form.errors.address }}
                             </p>
                         </div>
 
                         <Separator />
 
-                        <!-- Headline Toggle -->
-                        <div class="flex items-center justify-between">
-                            <div class="space-y-0.5">
-                                <Label>Jadikan Headline</Label>
-                                <p class="text-xs text-muted-foreground">
-                                    Tampilkan di bagian utama beranda
-                                </p>
+                        <!-- Coordinates -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <Label for="latitude">Latitude</Label>
+                                <Input id="latitude" v-model="form.latitude" type="number" step="any"
+                                    placeholder="-6.123456" :class="{ 'border-destructive': form.errors.latitude }" />
                             </div>
-                            <Switch v-model:checked="form.is_headline" />
-                        </div>
-
-                        <!-- Trending Toggle -->
-                        <div class="flex items-center justify-between">
-                            <div class="space-y-0.5">
-                                <Label>Tandai Trending</Label>
-                                <p class="text-xs text-muted-foreground">
-                                    Tampilkan di halaman trending
-                                </p>
+                            <div class="space-y-2">
+                                <Label for="longitude">Longitude</Label>
+                                <Input id="longitude" v-model="form.longitude" type="number" step="any"
+                                    placeholder="106.123456" :class="{ 'border-destructive': form.errors.longitude }" />
                             </div>
-                            <Switch v-model:checked="form.is_trending" />
                         </div>
-                    </CardContent>
-                </Card>
-
-                <!-- Tags Card -->
-                <Card>
-                    <CardHeader>
-                        <CardTitle class="flex items-center gap-2">
-                            <Tag class="h-4 w-4" />
-                            Tags
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent class="space-y-4">
-                        <div class="flex gap-2">
-                            <Input v-model="tagsInput" placeholder="Tambah tag..." @keyup.enter="addTag" />
-                            <Button variant="outline" size="icon" @click="addTag">
-                                <Tag class="h-4 w-4" />
-                            </Button>
-                        </div>
-
-                        <div v-if="tags.length > 0" class="flex flex-wrap gap-2">
-                            <Badge v-for="(tag, index) in tags" :key="index" variant="secondary" class="gap-1">
-                                {{ tag }}
-                                <button @click="removeTag(index)" class="ml-1 hover:text-destructive">
-                                    <X class="h-3 w-3" />
-                                </button>
-                            </Badge>
-                        </div>
-
-                        <p v-else class="text-sm text-muted-foreground">
-                            Belum ada tags. Tekan Enter untuk menambah tag.
+                        <p class="text-xs text-muted-foreground">
+                            Koordinat GPS untuk menampilkan lokasi di peta
                         </p>
                     </CardContent>
                 </Card>
 
-                <!-- Publish Date Card -->
+                <!-- Contact Card -->
                 <Card>
                     <CardHeader>
                         <CardTitle class="flex items-center gap-2">
-                            <Calendar class="h-4 w-4" />
-                            Jadwal Publikasi
+                            <Phone class="h-5 w-5" />
+                            Kontak
                         </CardTitle>
                     </CardHeader>
                     <CardContent class="space-y-4">
+                        <!-- Phone -->
                         <div class="space-y-2">
-                            <Label for="published_at">Tanggal & Waktu Publish</Label>
-                            <Input id="published_at" type="datetime-local" v-model="form.published_at" />
-                            <p class="text-xs text-muted-foreground">
-                                Kosongkan untuk publish sekarang
+                            <Label for="phone">Nomor Telepon</Label>
+                            <Input id="phone" v-model="form.phone" type="tel" placeholder="08123456789"
+                                :class="{ 'border-destructive': form.errors.phone }" />
+                            <p v-if="form.errors.phone" class="text-sm text-destructive">
+                                {{ form.errors.phone }}
                             </p>
                         </div>
 
-                        <div class="rounded-lg bg-muted p-3">
-                            <p class="text-sm font-medium">Status Saat Ini</p>
-                            <div class="flex items-center gap-2 mt-1">
-                                <Badge :variant="form.is_published ? 'default' : 'secondary'">
-                                    {{ form.is_published ? 'Published' : 'Draft' }}
-                                </Badge>
-                                <span v-if="news?.published_at" class="text-xs text-muted-foreground">
-                                    {{ new Date(news.published_at).toLocaleDateString('id-ID') }}
-                                </span>
+                        <!-- WhatsApp -->
+                        <div class="space-y-2">
+                            <Label for="whatsapp">WhatsApp</Label>
+                            <Input id="whatsapp" v-model="form.whatsapp" type="tel" placeholder="08123456789"
+                                :class="{ 'border-destructive': form.errors.whatsapp }" />
+                            <p v-if="form.errors.whatsapp" class="text-sm text-destructive">
+                                {{ form.errors.whatsapp }}
+                            </p>
+                        </div>
+
+                        <!-- Instagram -->
+                        <div class="space-y-2">
+                            <Label for="instagram">Instagram</Label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
+                                <Input id="instagram" v-model="form.instagram" class="pl-8" placeholder="username_ig"
+                                    :class="{ 'border-destructive': form.errors.instagram }" />
                             </div>
+                            <p v-if="form.errors.instagram" class="text-sm text-destructive">
+                                {{ form.errors.instagram }}
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -568,13 +490,15 @@ const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita
                 <!-- Quick Actions -->
                 <Card>
                     <CardContent class="pt-6 space-y-2">
-                        <Button variant="outline" class="w-full justify-start" @click="saveDraft">
+                        <Button class="w-full justify-start" @click="submitForm" :disabled="form.processing">
                             <Save class="mr-2 h-4 w-4" />
-                            Simpan sebagai Draft
+                            Simpan Perubahan
                         </Button>
-                        <Button class="w-full justify-start" @click="publish">
-                            <Send class="mr-2 h-4 w-4" />
-                            Publish Sekarang
+                        <Button variant="outline" class="w-full justify-start" as-child>
+                            <Link href="/admin/umkm">
+                                <ArrowLeft class="mr-2 h-4 w-4" />
+                                Kembali ke Daftar
+                            </Link>
                         </Button>
                     </CardContent>
                 </Card>

@@ -52,6 +52,7 @@ class NewsController extends Controller
             'excerpt' => $news->excerpt,
             'content' => $news->content,
             'image' => $news->image,
+            'image_url' => $news->image_url,
             'image_caption' => $news->image_caption ?? null,
             'category' => $news->category,
             'tags' => $news->tags ?? [],
@@ -84,6 +85,7 @@ class NewsController extends Controller
                     'title' => $related->title,
                     'slug' => $related->slug,
                     'image' => $related->image,
+                    'image_url' => $related->image_url,
                     'category' => $related->category,
                     'published_at' => $related->published_at?->toISOString(),
                     'published_at_formatted' => $related->published_at

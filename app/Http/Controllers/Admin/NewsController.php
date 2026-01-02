@@ -81,11 +81,16 @@ class NewsController extends Controller
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,webp,gif|max:5120',
             'category' => 'required|string|max:100',
-            'is_headline' => 'boolean',
-            'is_trending' => 'boolean',
-            'is_published' => 'boolean',
+            'is_headline' => 'nullable',
+            'is_trending' => 'nullable',
+            'is_published' => 'nullable',
             'published_at' => 'nullable|date',
         ]);
+
+        // Convert string boolean values to actual booleans
+        $validated['is_headline'] = filter_var($request->input('is_headline', false), FILTER_VALIDATE_BOOLEAN);
+        $validated['is_trending'] = filter_var($request->input('is_trending', false), FILTER_VALIDATE_BOOLEAN);
+        $validated['is_published'] = filter_var($request->input('is_published', false), FILTER_VALIDATE_BOOLEAN);
 
         // Handle image upload
         if ($request->hasFile('image')) {
@@ -136,11 +141,16 @@ class NewsController extends Controller
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,webp,gif|max:5120',
             'category' => 'required|string|max:100',
-            'is_headline' => 'boolean',
-            'is_trending' => 'boolean',
-            'is_published' => 'boolean',
+            'is_headline' => 'nullable',
+            'is_trending' => 'nullable',
+            'is_published' => 'nullable',
             'published_at' => 'nullable|date',
         ]);
+
+        // Convert string boolean values to actual booleans
+        $validated['is_headline'] = filter_var($request->input('is_headline', false), FILTER_VALIDATE_BOOLEAN);
+        $validated['is_trending'] = filter_var($request->input('is_trending', false), FILTER_VALIDATE_BOOLEAN);
+        $validated['is_published'] = filter_var($request->input('is_published', false), FILTER_VALIDATE_BOOLEAN);
 
         // Handle image upload
         if ($request->hasFile('image')) {

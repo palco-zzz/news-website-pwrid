@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Umkm;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -75,7 +76,7 @@ class UmkmController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,webp,gif|max:5120',
             'category' => 'required|string|max:100',
             'address' => 'nullable|string|max:500',
             'phone' => 'nullable|string|max:20',
@@ -84,6 +85,11 @@ class UmkmController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('umkm', 'public');
+        }
 
         $validated['slug'] = Str::slug($validated['name']) . '-' . Str::random(6);
         $validated['is_active'] = true;
@@ -115,7 +121,7 @@ class UmkmController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,webp,gif|max:5120',
             'category' => 'required|string|max:100',
             'address' => 'nullable|string|max:500',
             'phone' => 'nullable|string|max:20',
@@ -125,6 +131,18 @@ class UmkmController extends Controller
             'longitude' => 'nullable|numeric',
             'is_active' => 'boolean',
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($umkm->image && Storage::disk('public')->exists($umkm->image)) {
+                Storage::disk('public')->delete($umkm->image);
+            }
+            $validated['image'] = $request->file('image')->store('umkm', 'public');
+        } else {
+            // Keep existing image if no new file uploaded
+            unset($validated['image']);
+        }
 
         $umkm->update($validated);
 
