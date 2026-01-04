@@ -3,7 +3,6 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -13,7 +12,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import TiptapEditor from '@/components/ui/tiptap-editor/TiptapEditor.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
@@ -482,30 +480,6 @@ const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita
                             <p v-if="form.errors.category" class="text-sm text-destructive">
                                 {{ form.errors.category }}
                             </p>
-                        </div>
-
-                        <Separator />
-
-                        <!-- Headline Toggle -->
-                        <div class="flex items-center justify-between">
-                            <div class="space-y-0.5">
-                                <Label>Jadikan Headline</Label>
-                                <p class="text-xs text-muted-foreground">
-                                    Tampilkan di bagian utama beranda
-                                </p>
-                            </div>
-                            <Switch v-model:checked="form.is_headline" />
-                        </div>
-
-                        <!-- Trending Toggle -->
-                        <div class="flex items-center justify-between">
-                            <div class="space-y-0.5">
-                                <Label>Tandai Trending</Label>
-                                <p class="text-xs text-muted-foreground">
-                                    Tampilkan di halaman trending
-                                </p>
-                            </div>
-                            <Switch v-model:checked="form.is_trending" />
                         </div>
                     </CardContent>
                 </Card>

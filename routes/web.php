@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CitizenReportController as AdminCitizenReportCont
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\UmkmController as AdminUmkmController;
+use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\CitizenReportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NewsController;
@@ -24,9 +25,8 @@ Route::get('/laporan-warga/{slug}', [CitizenReportController::class, 'show'])->n
 Route::get('/umkm', [UmkmController::class, 'index'])->name('umkm.index');
 Route::get('/umkm/{slug}', [UmkmController::class, 'show'])->name('umkm.show');
 
-Route::get('/agenda', function () {
-    return Inertia::render('Agenda');
-})->name('agenda');
+Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+Route::get('/agenda/{slug}', [AgendaController::class, 'show'])->name('agenda.show');
 
 // Dashboard redirect to admin
 Route::get('dashboard', function () {
@@ -45,6 +45,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::put('/news/{news}', [AdminNewsController::class, 'update'])->name('news.update');
     Route::delete('/news/{news}', [AdminNewsController::class, 'destroy'])->name('news.destroy');
     Route::patch('/news/{news}/toggle/{field}', [AdminNewsController::class, 'toggleStatus'])->name('news.toggle-status');
+    Route::post('/news/set-headline', [AdminNewsController::class, 'setHeadline'])->name('news.set-headline');
+    Route::post('/news/set-trending', [AdminNewsController::class, 'setTrending'])->name('news.set-trending');
 
     // UMKM Management
     Route::get('/umkm', [AdminUmkmController::class, 'index'])->name('umkm.index');

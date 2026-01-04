@@ -47,6 +47,18 @@ class NewsController extends Controller
         // Get distinct categories
         $categories = News::distinct()->pluck('category')->filter()->values()->toArray();
 
+        // Get current headline (for featured management)
+        $currentHeadline = News::where('is_headline', true)->first();
+
+        // Get trending news (for featured management)
+        $trendingNews = News::where('is_trending', true)->get();
+
+        // Get all published news (for select dropdowns)
+        $allPublishedNews = News::where('is_published', true)
+            ->select('id', 'title', 'slug', 'is_headline', 'is_trending')
+            ->orderBy('title')
+            ->get();
+
         return Inertia::render('Admin/News/Index', [
             'newsList' => $newsList,
             'filters' => [
@@ -55,6 +67,9 @@ class NewsController extends Controller
                 'category' => $request->input('category'),
             ],
             'categories' => $categories,
+            'currentHeadline' => $currentHeadline,
+            'trendingNews' => $trendingNews,
+            'allPublishedNews' => $allPublishedNews,
         ]);
     }
 
@@ -215,5 +230,46 @@ class NewsController extends Controller
         $status = $news->{$field} ? 'aktif' : 'nonaktif';
 
         return back()->with('success', "{$labels[$field]} berhasil di{$status}kan.");
+    }
+
+    /**
+     * Set a specific news as the headline (only one can be headline at a time).
+     */
+    public function setHeadline(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'news_id' => 'nullable|exists:news,id',
+        ]);
+
+        // Remove headline from all news
+        News::where('is_headline', true)->update(['is_headline' => false]);
+
+        // Set new headline if provided
+        if (!empty($validated['news_id'])) {
+            News::where('id', $validated['news_id'])->update(['is_headline' => true]);
+        }
+
+        return back()->with('success', 'Headline berhasil diperbarui.');
+    }
+
+    /**
+     * Update trending news (multiple can be trending).
+     */
+    public function setTrending(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'news_ids' => 'array',
+            'news_ids.*' => 'exists:news,id',
+        ]);
+
+        // Remove trending from all news
+        News::where('is_trending', true)->update(['is_trending' => false]);
+
+        // Set new trending news
+        if (!empty($validated['news_ids'])) {
+            News::whereIn('id', $validated['news_ids'])->update(['is_trending' => true]);
+        }
+
+        return back()->with('success', 'Trending berhasil diperbarui.');
     }
 }

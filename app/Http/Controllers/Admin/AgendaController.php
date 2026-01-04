@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Agenda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -14,60 +15,35 @@ class AgendaController extends Controller
      */
     public function index(Request $request)
     {
-        // Placeholder data - replace with actual model when created
-        $agendaList = [
-            [
-                'id' => 1,
-                'title' => 'Rapat Koordinasi Desa',
-                'slug' => 'rapat-koordinasi-desa',
-                'date' => '2026-01-15',
-                'time' => '09:00',
-                'location' => 'Balai Desa Purworejo',
-                'category' => 'Pemerintahan',
-                'status' => 'published',
-                'created_at' => '2026-01-01',
-            ],
-            [
-                'id' => 2,
-                'title' => 'Festival Budaya Purworejo',
-                'slug' => 'festival-budaya-purworejo',
-                'date' => '2026-01-20',
-                'time' => '08:00',
-                'location' => 'Alun-alun Purworejo',
-                'category' => 'Budaya',
-                'status' => 'published',
-                'created_at' => '2026-01-02',
-            ],
-            [
-                'id' => 3,
-                'title' => 'Bazar UMKM Mingguan',
-                'slug' => 'bazar-umkm-mingguan',
-                'date' => '2026-01-22',
-                'time' => '07:00',
-                'location' => 'Pasar Baledono',
-                'category' => 'Ekonomi',
-                'status' => 'draft',
-                'created_at' => '2026-01-03',
-            ],
+        $query = Agenda::orderBy('date', 'desc');
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $agendaList = $query->paginate(15)->withQueryString();
+
+        // Get stats
+        $stats = [
+            'total' => Agenda::count(),
+            'upcoming' => Agenda::published()->upcoming()->count(),
+            'completed' => Agenda::published()->past()->count(),
         ];
 
         return Inertia::render('Admin/Agenda/Index', [
-            'agendaList' => [
-                'data' => $agendaList,
-                'current_page' => 1,
-                'last_page' => 1,
-                'per_page' => 15,
-                'total' => count($agendaList),
-                'from' => 1,
-                'to' => count($agendaList),
-                'links' => [],
-            ],
+            'agendaList' => $agendaList,
             'filters' => $request->only(['search', 'status']),
-            'stats' => [
-                'total' => count($agendaList),
-                'upcoming' => 2,
-                'completed' => 1,
-            ],
+            'stats' => $stats,
         ]);
     }
 
@@ -80,17 +56,26 @@ class AgendaController extends Controller
             'title' => 'required|string|max:255',
             'date' => 'required|date',
             'time' => 'nullable|string',
+            'end_time' => 'nullable|string',
             'location' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'required|string|max:100',
             'status' => 'required|in:draft,published',
+            'image' => 'nullable|image|max:5120',
         ]);
 
-        // Generate slug
-        $validated['slug'] = Str::slug($validated['title']);
+        // Generate unique slug
+        $validated['slug'] = Str::slug($validated['title']) . '-' . Str::random(6);
 
-        // TODO: Save to database when Agenda model is created
-        // Agenda::create($validated);
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('agendas', 'public');
+        }
+
+        // Set creator
+        $validated['created_by'] = $request->user()->id;
+
+        Agenda::create($validated);
 
         return back()->with('success', 'Agenda berhasil dibuat.');
     }
@@ -98,65 +83,46 @@ class AgendaController extends Controller
     /**
      * Display the specified agenda.
      */
-    public function show(int $id)
+    public function show(Agenda $agenda)
     {
-        // TODO: Fetch from database when Agenda model is created
         return Inertia::render('Admin/Agenda/Show', [
-            'agenda' => [
-                'id' => $id,
-                'title' => 'Sample Agenda',
-                'slug' => 'sample-agenda',
-                'date' => '2026-01-15',
-                'time' => '09:00',
-                'location' => 'Balai Desa Purworejo',
-                'category' => 'Pemerintahan',
-                'description' => 'Sample description',
-                'status' => 'published',
-            ],
+            'agenda' => $agenda,
         ]);
     }
 
     /**
      * Show the form for editing the specified agenda.
      */
-    public function edit(int $id)
+    public function edit(Agenda $agenda)
     {
-        // TODO: Fetch from database when Agenda model is created
         return Inertia::render('Admin/Agenda/Edit', [
-            'agenda' => [
-                'id' => $id,
-                'title' => 'Sample Agenda',
-                'slug' => 'sample-agenda',
-                'date' => '2026-01-15',
-                'time' => '09:00',
-                'location' => 'Balai Desa Purworejo',
-                'category' => 'Pemerintahan',
-                'description' => 'Sample description',
-                'status' => 'published',
-            ],
+            'agenda' => $agenda,
         ]);
     }
 
     /**
      * Update the specified agenda in storage.
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, Agenda $agenda)
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'date' => 'required|date',
             'time' => 'nullable|string',
+            'end_time' => 'nullable|string',
             'location' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'required|string|max:100',
             'status' => 'required|in:draft,published',
+            'image' => 'nullable|image|max:5120',
         ]);
 
-        // Generate slug
-        $validated['slug'] = Str::slug($validated['title']);
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('agendas', 'public');
+        }
 
-        // TODO: Update in database when Agenda model is created
-        // Agenda::findOrFail($id)->update($validated);
+        $agenda->update($validated);
 
         return back()->with('success', 'Agenda berhasil diperbarui.');
     }
@@ -164,10 +130,9 @@ class AgendaController extends Controller
     /**
      * Remove the specified agenda from storage.
      */
-    public function destroy(int $id)
+    public function destroy(Agenda $agenda)
     {
-        // TODO: Delete from database when Agenda model is created
-        // Agenda::findOrFail($id)->delete();
+        $agenda->delete();
 
         return back()->with('success', 'Agenda berhasil dihapus.');
     }

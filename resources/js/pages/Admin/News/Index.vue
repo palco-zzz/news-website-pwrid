@@ -2,7 +2,7 @@
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -27,6 +28,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Head, Link, router } from '@inertiajs/vue3';
 import {
     ChevronLeft,
@@ -40,6 +42,8 @@ import {
     Search,
     Star,
     Trash2,
+    Sparkles,
+    TrendingUp,
 } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
@@ -62,6 +66,14 @@ interface News {
     published_at: string | null;
     created_at: string;
     author: Author | null;
+}
+
+interface SimpleNews {
+    id: number;
+    title: string;
+    slug: string;
+    is_headline: boolean;
+    is_trending: boolean;
 }
 
 interface PaginationLinks {
@@ -89,12 +101,19 @@ const props = defineProps<{
         category?: string;
     };
     categories?: string[];
+    currentHeadline?: News | null;
+    trendingNews?: News[];
+    allPublishedNews?: SimpleNews[];
 }>();
 
 // Local filter state
 const searchQuery = ref(props.filters?.search ?? '');
 const statusFilter = ref(props.filters?.status ?? 'all');
 const categoryFilter = ref(props.filters?.category ?? 'all');
+
+// Featured management state
+const selectedHeadline = ref<string>(props.currentHeadline?.id?.toString() ?? '');
+const selectedTrending = ref<number[]>(props.trendingNews?.map(n => n.id) ?? []);
 
 // Debounced search
 let searchTimeout: ReturnType<typeof setTimeout>;
@@ -175,10 +194,53 @@ const handleDelete = (news: News) => {
 const toggleStatus = (news: News, field: 'is_headline' | 'is_trending') => {
     router.patch(`/admin/news/${news.id}/toggle/${field}`, {}, {
         preserveScroll: true,
-        onSuccess: () => {
-            // Optional: Manual update if needed for instant feedback, 
-            // but Inertia reload will handle it.
-        }
+    });
+};
+
+// Set headline
+const updateHeadline = () => {
+    router.post('/admin/news/set-headline', {
+        news_id: selectedHeadline.value ? parseInt(selectedHeadline.value) : null,
+    }, {
+        preserveScroll: true,
+    });
+};
+
+// Toggle trending checkbox
+const isTrendingSelected = (newsId: number) => {
+    return selectedTrending.value.includes(newsId);
+};
+
+const toggleTrendingSelection = (newsId: number) => {
+    if (selectedTrending.value.includes(newsId)) {
+        selectedTrending.value = selectedTrending.value.filter(id => id !== newsId);
+    } else {
+        selectedTrending.value = [...selectedTrending.value, newsId];
+    }
+};
+
+const updateTrending = () => {
+    router.post('/admin/news/set-trending', {
+        news_ids: selectedTrending.value,
+    }, {
+        preserveScroll: true,
+    });
+};
+
+// Featured search filter (unified for headline and trending)
+const featuredSearchQuery = ref('');
+
+const filteredNewsForFeatured = computed(() => {
+    if (!props.allPublishedNews || !featuredSearchQuery.value) return [];
+
+    const query = featuredSearchQuery.value.toLowerCase();
+    return props.allPublishedNews.filter(n => n.title.toLowerCase().includes(query));
+});
+
+// Quick toggle - instantly toggle headline or trending
+const quickToggle = (newsId: number, field: 'is_headline' | 'is_trending') => {
+    router.patch(`/admin/news/${newsId}/toggle/${field}`, {}, {
+        preserveScroll: true,
     });
 };
 
@@ -214,6 +276,76 @@ const availableCategories = computed(() => props.categories ?? defaultCategories
                 </Link>
             </Button>
         </div>
+
+        <!-- Quick Featured Toggle -->
+        <Card>
+            <CardHeader class="pb-3">
+                <CardTitle class="text-base flex items-center gap-2">
+                    <Sparkles class="h-5 w-5 text-indigo-600" />
+                    Atur Headline & Trending
+                </CardTitle>
+                <CardDescription>Cari berita lalu klik ikon untuk toggle Headline atau Trending</CardDescription>
+            </CardHeader>
+            <CardContent class="space-y-4">
+                <!-- Current Status -->
+                <div class="flex flex-wrap gap-4 text-sm">
+                    <div class="flex items-center gap-2">
+                        <Star class="h-4 w-4 text-yellow-600 fill-yellow-600" />
+                        <span class="text-muted-foreground">Headline:</span>
+                        <span class="font-medium">{{ currentHeadline?.title ? (currentHeadline.title.length > 30 ?
+                            currentHeadline.title.substring(0, 30) + '...' : currentHeadline.title) : 'Belum dipilih'
+                        }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <Flame class="h-4 w-4 text-orange-600" />
+                        <span class="text-muted-foreground">Trending:</span>
+                        <span class="font-medium">{{ trendingNews?.length || 0 }} berita aktif</span>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="relative">
+                    <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input v-model="featuredSearchQuery" type="search"
+                        placeholder="Cari berita untuk diatur headline/trending..." class="pl-9" />
+                </div>
+
+                <!-- Results List -->
+                <div v-if="featuredSearchQuery" class="border rounded-lg divide-y max-h-[300px] overflow-y-auto">
+                    <div v-for="news in filteredNewsForFeatured" :key="`f-${news.id}`"
+                        class="flex items-center justify-between p-3 hover:bg-slate-50 transition-colors">
+                        <div class="flex-1 min-w-0 mr-4">
+                            <p class="text-sm font-medium truncate">{{ news.title }}</p>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <!-- Headline Toggle -->
+                            <Button variant="ghost" size="sm" class="h-8 w-8 p-0"
+                                :class="news.is_headline ? 'text-yellow-600 bg-yellow-50' : 'text-slate-400 hover:text-yellow-600'"
+                                @click="quickToggle(news.id, 'is_headline')"
+                                :title="news.is_headline ? 'Hapus dari Headline' : 'Jadikan Headline'">
+                                <Star class="h-4 w-4" :class="news.is_headline ? 'fill-yellow-600' : ''" />
+                            </Button>
+                            <!-- Trending Toggle -->
+                            <Button variant="ghost" size="sm" class="h-8 w-8 p-0"
+                                :class="news.is_trending ? 'text-orange-600 bg-orange-50' : 'text-slate-400 hover:text-orange-600'"
+                                @click="quickToggle(news.id, 'is_trending')"
+                                :title="news.is_trending ? 'Hapus dari Trending' : 'Jadikan Trending'">
+                                <Flame class="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    <p v-if="filteredNewsForFeatured.length === 0"
+                        class="p-4 text-sm text-muted-foreground text-center">
+                        Tidak ada berita ditemukan
+                    </p>
+                </div>
+
+                <!-- Hint when no search -->
+                <p v-else class="text-sm text-muted-foreground text-center py-2">
+                    Ketik untuk mencari berita yang ingin diatur
+                </p>
+            </CardContent>
+        </Card>
 
         <!-- Filters -->
         <Card>
