@@ -185,6 +185,9 @@ const removeTag = (index: number) => {
 
 // Form submission
 const submitForm = (publish: boolean = false) => {
+    // Clear any previous errors
+    form.clearErrors();
+
     if (publish) {
         form.is_published = true;
         form.published_at = new Date().toISOString();
@@ -193,6 +196,9 @@ const submitForm = (publish: boolean = false) => {
     const options = {
         preserveScroll: true,
         forceFormData: true, // Force multipart/form-data for file upload
+        onError: (errors: Record<string, string>) => {
+            console.error('Form submission errors:', errors);
+        },
     };
 
     if (props.isEditing && props.news?.id) {

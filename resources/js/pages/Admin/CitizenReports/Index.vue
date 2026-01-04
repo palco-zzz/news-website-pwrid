@@ -275,11 +275,19 @@ const openEditModal = (report: CitizenReport) => {
 const submitEdit = () => {
     if (!editingReport.value) return;
 
-    // @ts-ignore
-    form.put(route('admin.citizen-reports.update', editingReport.value.id), {
+    // Transform boolean to explicit values for HTTP transmission
+    form.transform((data) => ({
+        ...data,
+        is_published: data.is_published ? '1' : '0',
+    })).put(`/admin/citizen-reports/${editingReport.value.id}`, {
+        preserveScroll: true,
         onSuccess: () => {
             isEditOpen.value = false;
             editingReport.value = null;
+            form.reset();
+        },
+        onError: (errors: Record<string, string>) => {
+            console.error('Update failed:', errors);
         },
     });
 };
@@ -407,10 +415,16 @@ watch(() => form.is_published, (newVal) => {
                                     </span>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" :class="statusConfig[report.status].class">
-                                        <component :is="statusConfig[report.status].icon" class="mr-1 h-3 w-3" />
-                                        {{ statusConfig[report.status].label }}
-                                    </Badge>
+                                    <div class="flex items-center gap-2">
+                                        <Badge variant="outline" :class="statusConfig[report.status].class">
+                                            <component :is="statusConfig[report.status].icon" class="mr-1 h-3 w-3" />
+                                            {{ statusConfig[report.status].label }}
+                                        </Badge>
+                                        <Badge v-if="report.is_published" variant="outline"
+                                            class="bg-green-50 text-green-700 border-green-200">
+                                            Publik
+                                        </Badge>
+                                    </div>
                                 </TableCell>
                                 <TableCell class="text-right">
                                     <DropdownMenu>
@@ -535,12 +549,20 @@ watch(() => form.is_published, (newVal) => {
                     </div>
 
                     <!-- Publish Toggle -->
-                    <div class="flex items-center space-x-2 pt-2">
-                        <Checkbox id="is_published" :checked="form.is_published"
-                            @update:checked="(val: boolean) => form.is_published = val" />
-                        <Label for="is_published" class="text-sm font-medium leading-none cursor-pointer">
-                            Publikasikan ke Laman Info Warga
-                        </Label>
+                    <div class="p-4 rounded-lg border bg-slate-50 border-slate-200">
+                        <div class="flex items-center space-x-3">
+                            <Checkbox id="is_published" :checked="form.is_published"
+                                @update:checked="(val: boolean) => form.is_published = val" />
+                            <div class="flex-1">
+                                <Label for="is_published" class="text-sm font-semibold cursor-pointer">
+                                    Tampilkan ke Publik
+                                </Label>
+                                <p class="text-xs text-muted-foreground mt-1">Centang untuk menampilkan laporan ini ke
+                                    publik
+                                </p>
+                            </div>
+                            <span v-if="form.is_published" class="text-xs font-bold text-green-600">AKTIF</span>
+                        </div>
                     </div>
 
                     <DialogFooter class="mt-6">

@@ -3,6 +3,13 @@
     <Head :title="report.title" />
 
     <article class="max-w-4xl mx-auto">
+        <!-- Preview Banner for unpublished reports -->
+        <div v-if="!report.is_published"
+            class="bg-amber-100 border border-amber-300 text-amber-800 px-4 py-3 rounded-xl mb-6 flex items-center gap-3">
+            <i class="fa-solid fa-eye-slash"></i>
+            <span class="font-bold text-sm">Mode Preview - Laporan ini belum dipublikasikan ke publik</span>
+        </div>
+
         <!-- Category & Status -->
         <div class="flex items-center justify-between mb-4">
             <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">{{ report.category }}</span>
@@ -41,7 +48,7 @@
 
         <!-- Featured Image -->
         <div v-if="report.image" class="aspect-video rounded-3xl overflow-hidden bg-slate-100 mb-8">
-            <img :src="report.image" :alt="report.title" class="w-full h-full object-cover">
+            <img :src="getImageUrl(report.image)" :alt="report.title" class="w-full h-full object-cover">
         </div>
 
         <!-- Content -->
@@ -128,5 +135,12 @@ const formatDate = (dateString) => {
         month: 'long',
         day: 'numeric'
     });
+};
+
+// Helper function to get proper image URL
+const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http')) return imagePath;
+    return `/storage/${imagePath}`;
 };
 </script>

@@ -88,9 +88,29 @@ class CitizenReportController extends Controller
             'is_published' => 'boolean',
         ]);
 
-        $validated['is_published'] = $request->boolean('is_published');
+        // Capture the boolean value explicitly
+        $isPublished = $request->boolean('is_published');
+        $newStatus = $validated['status'];
+        $oldStatus = $citizenReport->status;
 
-        // Set published_at only when publishing and it's currently null
+        // Auto-publish logic:
+        // If status changes FROM pending TO anything other than pending or rejected
+        // OR if the publish checkbox is explicitly checked
+        $shouldAutoPublish = false;
+        
+        if ($oldStatus === 'pending' && !in_array($newStatus, ['pending', 'rejected'])) {
+            $shouldAutoPublish = true;
+        }
+
+        // If checkbox is checked, always publish
+        if ($isPublished) {
+            $shouldAutoPublish = true;
+        }
+
+        // Apply publish state
+        $validated['is_published'] = $shouldAutoPublish || $isPublished;
+
+        // Set published_at if publishing and not already set
         if ($validated['is_published'] && empty($citizenReport->published_at)) {
             $validated['published_at'] = now();
         }

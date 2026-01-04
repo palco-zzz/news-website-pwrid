@@ -11,6 +11,13 @@ class CitizenReport extends Model
     use HasFactory;
 
     /**
+     * The attributes that should be appended to the model's array form.
+     *
+     * @var array<string>
+     */
+    protected $appends = ['status_color'];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -65,8 +72,7 @@ class CitizenReport extends Model
     public function scopePublished($query)
     {
         return $query->where('is_published', true)
-            ->whereNotNull('published_at')
-            ->where('published_at', '<=', now());
+            ->whereNotNull('published_at');
     }
 
     /**
@@ -99,5 +105,20 @@ class CitizenReport extends Model
     public function scopePopular($query)
     {
         return $query->orderBy('upvotes_count', 'desc');
+    }
+
+    /**
+     * Get the status color attribute for Tailwind classes.
+     */
+    public function getStatusColorAttribute(): string
+    {
+        return match ($this->status) {
+            'pending' => 'bg-amber-100 text-amber-700 border-amber-200',
+            'verified' => 'bg-blue-100 text-blue-700 border-blue-200',
+            'in_progress' => 'bg-purple-100 text-purple-700 border-purple-200',
+            'resolved' => 'bg-green-100 text-green-700 border-green-200',
+            'rejected' => 'bg-red-100 text-red-700 border-red-200',
+            default => 'bg-gray-100 text-gray-700 border-gray-200',
+        };
     }
 }

@@ -82,13 +82,19 @@ class CitizenReportController extends Controller
     /**
      * Display a single citizen report.
      */
-    public function show(string $slug): Response
+    public function show(Request $request, string $slug): Response
     {
-        $report = CitizenReport::where('slug', $slug)
-            ->published()
-            ->firstOrFail();
+        // Allow authenticated users to preview any report (for admins)
+        // Regular visitors can only see published reports
+        $query = CitizenReport::where('slug', $slug);
 
-        // Get related reports from same category
+        if (!$request->user()) {
+            $query->published();
+        }
+
+        $report = $query->firstOrFail();
+
+        // Get related reports from same category (always published)
         $relatedReports = CitizenReport::published()
             ->where('id', '!=', $report->id)
             ->where('category', $report->category)

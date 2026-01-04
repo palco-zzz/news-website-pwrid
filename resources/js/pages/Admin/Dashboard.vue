@@ -209,13 +209,14 @@ const formatRelativeTime = (dateString: string) => {
                                         {{ formatRelativeTime(report.created_at) }}
                                     </TableCell>
                                     <TableCell class="text-right">
-                                        <Button variant="ghost" size="sm" as-child>
-                                            <a v-if="report.slug" :href="`/laporan-warga/${report.slug}`"
-                                                target="_blank">
-                                                Lihat
-                                            </a>
-                                            <span v-else class="text-muted-foreground text-xs">No Slug</span>
-                                        </Button>
+                                        <template v-if="report.slug">
+                                            <Button variant="ghost" size="sm" as-child>
+                                                <Link :href="`/admin/citizen-reports/${report.id}`">
+                                                    Kelola
+                                                </Link>
+                                            </Button>
+                                        </template>
+                                        <span v-else class="text-muted-foreground text-xs">-</span>
                                     </TableCell>
                                 </TableRow>
                             </template>

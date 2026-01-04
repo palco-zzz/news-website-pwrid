@@ -32,6 +32,22 @@ class DashboardController extends Controller
             'category',
             'status',
             'is_anonymous',
+            'is_published',
+            'created_at',
+        ])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Get the 5 most recent news articles
+        $recentNews = News::select([
+            'id',
+            'title',
+            'slug',
+            'category',
+            'is_published',
+            'is_headline',
+            'is_trending',
             'created_at',
         ])
             ->orderBy('created_at', 'desc')
@@ -41,6 +57,7 @@ class DashboardController extends Controller
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
             'recentReports' => $recentReports,
+            'recentNews' => $recentNews,
         ]);
     }
 }

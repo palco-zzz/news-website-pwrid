@@ -149,8 +149,8 @@
                     <i class="fa-solid fa-arrow-trend-up mr-2"></i>Paling Banyak Didukung
                 </h2>
                 <div class="space-y-3">
-                    <div v-for="report in popularReports" :key="report.id"
-                        class="flex items-center gap-4 p-3 bg-white/60 rounded-xl">
+                    <Link v-for="report in popularReports" :key="report.id" :href="`/laporan-warga/${report.slug}`"
+                        class="flex items-center gap-4 p-3 bg-white/60 rounded-xl hover:bg-white transition-colors cursor-pointer">
                         <div class="flex items-center gap-1 text-indigo-600">
                             <i class="fa-solid fa-arrow-up"></i>
                             <span class="font-bold text-sm">{{ report.upvotes_count }}</span>
@@ -160,16 +160,16 @@
                             <span class="text-xs text-slate-400">{{ report.location }}</span>
                         </div>
                         <StatusBadge :status="report.status" />
-                    </div>
+                    </Link>
                 </div>
             </div>
 
             <!-- Reports Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="report in reports.data" :key="report.id"
-                    class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg transition-shadow">
+                <Link v-for="report in reports.data" :key="report.id" :href="`/laporan-warga/${report.slug}`"
+                    class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 cursor-pointer block">
                     <div v-if="report.image" class="aspect-video bg-slate-100 overflow-hidden">
-                        <img :src="report.image" :alt="report.title" class="w-full h-full object-cover">
+                        <img :src="getImageUrl(report.image)" :alt="report.title" class="w-full h-full object-cover">
                     </div>
                     <div class="p-5 space-y-3">
                         <div class="flex items-center justify-between">
@@ -190,14 +190,14 @@
                             </span>
                         </div>
                     </div>
-                </div>
+                </Link>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Megaphone, Camera, X } from 'lucide-vue-next';
 import MainLayout from '@/layouts/MainLayout.vue';
 import EmptyState from '@/components/EmptyState.vue';
@@ -224,6 +224,13 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { ref } from 'vue';
+
+// Helper function to get proper image URL
+const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith('http')) return imagePath;
+    return `/storage/${imagePath}`;
+};
 
 
 defineOptions({ layout: MainLayout });
