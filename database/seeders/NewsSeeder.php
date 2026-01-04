@@ -17,7 +17,6 @@ class NewsSeeder extends Seeder
         $admin = User::first() ?? User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@example.com',
-            'role' => 'admin',
         ]);
 
         $newsData = [
@@ -36,7 +35,7 @@ class NewsSeeder extends Seeder
                 "title" => "Waspada Curah Hujan Tinggi, BPBD Purworejo Siaga Bencana Longsor",
                 "slug" => "bpbd-purworejo-siaga-longsor-2026",
                 "content" => "<p><strong>PURWOREJO</strong> - Badan Penanggulangan Bencana Daerah (BPBD) Kabupaten Purworejo mengeluarkan peringatan dini terkait potensi bencana tanah longsor, menyusul tingginya curah hujan yang mengguyur wilayah ini dalam sepekan terakhir.</p><p>Kepala BPBD Purworejo menghimbau warga yang tinggal di zona merah, khususnya di area perbukitan Menoreh seperti Kecamatan Kaligesing, Bruno, dan Bener, untuk meningkatkan kewaspadaan. \"Kami telah menyiagakan tim reaksi cepat dan posko bencana 24 jam untuk memantau situasi terkini,\" ujarnya.</p><p>Langkah antisipasi yang disarankan meliputi:</p><ul><li>Membersihkan saluran air dari sampah</li><li>Memperhatikan retakan tanah di sekitar hunian</li><li>Segera mengungsi jika hujan deras turun lebih dari 2 jam berturut-turut</li></ul>",
-                "image" => "https://images.unsplash.com/photo-1519817914152-d2d8ee9bb627?q=80&w=2668&auto=format&fit=crop", // Rain/Moody landscape
+                "image" => "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=2668&auto=format&fit=crop", // Rain/Moody landscape
                 "is_published" => true,
                 "is_headline" => false,
                 "is_trending" => true,
@@ -58,7 +57,7 @@ class NewsSeeder extends Seeder
                 "title" => "Update Pembangunan Bendungan Bener: Target Pengairan Ribuan Hektar Sawah",
                 "slug" => "update-pembangunan-bendungan-bener",
                 "content" => "<p><strong>BENER</strong> - Pembangunan Proyek Strategis Nasional (PSN) Bendungan Bener terus menunjukkan progres positif. Hingga awal tahun ini, konstruksi tubuh bendungan utama telah berjalan signifikan, dengan fokus pada percepatan penyelesaian terowongan pengelak.</p><p>Bendungan tertinggi di Indonesia ini diproyeksikan mampu mengairi lahan pertanian seluas 15.000 hektar di Kabupaten Purworejo dan Kebumen. Selain fungsi irigasi, Bendungan Bener juga akan menyuplai air baku hingga 1.500 liter per detik dan berpotensi menghasilkan listrik (PLTA) sebesar 6 Mega Watt.</p><p>\"Target kami pengisian air awal (impounding) bisa dilakukan sesuai jadwal. Ini krusial untuk ketahanan pangan nasional,\" tegas pimpinan proyek saat meninjau lokasi.</p>",
-                "image" => "https://images.unsplash.com/photo-1582963321287-9bcbd393a5ee?q=80&w=2669&auto=format&fit=crop", // Dam/Construction
+                "image" => "https://images.unsplash.com/photo-1589980838630-974530fc464c?q=80&w=2669&auto=format&fit=crop", // Dam/Construction
                 "is_published" => true,
                 "is_headline" => true,
                 "is_trending" => true,
@@ -179,7 +178,7 @@ class NewsSeeder extends Seeder
                 "title" => "Peluncuran Bus Trans Jateng Rute Purworejo-Magelang",
                 "slug" => "trans-jateng-purworejo-magelang",
                 "content" => "<p><strong>PURWOREJO</strong> - Moda transportasi massal modern akhirnya hadir di Purworejo. Gubernur Jawa Tengah secara resmi meluncurkan operasional Bus Trans Jateng Koridor Purworejo-Magelang. Sebanyak 14 armada bus siap melayani rute Terminal Kutoarjo hingga Terminal Borobudur Magelang.</p><p>Layanan ini menawarkan tarif yang sangat terjangkau, yakni Rp 4.000 untuk umum dan Rp 2.000 untuk pelajar/buruh/veteran. Fasilitas bus yang nyaman, ber-AC, dan tepat waktu diharapkan mampu mengurangi penggunaan kendaraan pribadi di jalur padat tersebut.</p><p>\"Ini solusi cerdas untuk konektivitas antar wilayah aglomerasi. Pelajar Purworejo yang sekolah di Magelang atau sebaliknya akan sangat terbantu,\" ujar Gubernur.</p>",
-                "image" => "https://images.unsplash.com/photo-1570125909232-eb2be3b38962?q=80&w=2670&auto=format&fit=crop", // Bus
+                "image" => "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2670&auto=format&fit=crop", // Bus
                 "is_published" => true,
                 "is_headline" => false,
                 "is_trending" => true,

@@ -31,38 +31,43 @@
                     <i class="fa-solid fa-trophy mr-2"></i>Top Stories
                 </h2>
                 <div class="space-y-3">
-                    <div v-for="(story, index) in topStories" :key="story.id"
-                        class="flex items-center gap-4 p-3 bg-white/60 rounded-xl">
-                        <span class="text-2xl font-black text-orange-400">{{ index + 1 }}</span>
+                    <Link v-for="(story, index) in topStories" :key="story.id" :href="`/berita/${story.slug}`"
+                        class="flex items-center gap-4 p-3 bg-white/60 rounded-xl hover:bg-white transition-colors cursor-pointer group">
+                        <span
+                            class="text-2xl font-black text-orange-400 group-hover:text-orange-500 transition-colors">{{
+                            index + 1 }}</span>
                         <div class="flex-1">
-                            <h3 class="font-bold text-slate-900 text-sm">{{ story.title }}</h3>
+                            <h3 class="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">
+                                {{ story.title }}</h3>
                             <span class="text-xs text-slate-400">{{ story.views_count }} views</span>
                         </div>
-                    </div>
+                    </Link>
                 </div>
             </div>
 
             <!-- Trending News Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="news in trendingNews.data" :key="news.id"
-                    class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg transition-shadow">
+                <Link v-for="news in trendingNews.data" :key="news.id" :href="`/berita/${news.slug}`"
+                    class="block bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-lg transition-shadow group">
                     <div class="aspect-video bg-slate-100 overflow-hidden">
                         <img :src="news.image_url || 'https://images.unsplash.com/photo-1495020689067-958852a7765e?q=80&w=2069&auto=format&fit=crop'"
-                            :alt="news.title" loading="lazy" class="w-full h-full object-cover">
+                            :alt="news.title" loading="lazy"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     </div>
                     <div class="p-5 space-y-3">
                         <span class="text-xs font-bold text-indigo-600 uppercase">{{ news.category }}</span>
-                        <h3 class="font-bold text-slate-900 line-clamp-2">{{ news.title }}</h3>
+                        <h3 class="font-bold text-slate-900 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                            {{ news.title }}</h3>
                         <p v-if="news.excerpt" class="text-sm text-slate-500 line-clamp-2">{{ news.excerpt }}</p>
                     </div>
-                </div>
+                </Link>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, Link } from '@inertiajs/vue3';
 import { Flame, Home } from 'lucide-vue-next';
 import MainLayout from '@/layouts/MainLayout.vue';
 import EmptyState from '@/components/EmptyState.vue';
