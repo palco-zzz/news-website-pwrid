@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('citizen_reports', function (Blueprint $table) {
-            //
+            $table->text('admin_note')->nullable()->after('is_published');
         });
     }
 

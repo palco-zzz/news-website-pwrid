@@ -210,9 +210,11 @@ const formatRelativeTime = (dateString: string) => {
                                     </TableCell>
                                     <TableCell class="text-right">
                                         <Button variant="ghost" size="sm" as-child>
-                                            <a :href="`/laporan-warga/${report.slug}`" target="_blank">
+                                            <a v-if="report.slug" :href="`/laporan-warga/${report.slug}`"
+                                                target="_blank">
                                                 Lihat
                                             </a>
+                                            <span v-else class="text-muted-foreground text-xs">No Slug</span>
                                         </Button>
                                     </TableCell>
                                 </TableRow>

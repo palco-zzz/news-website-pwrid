@@ -15,7 +15,18 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     Select,
     SelectContent,
@@ -31,7 +42,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Head, Link, router } from "@inertiajs/vue3";
+import { Head, Link, router, useForm } from "@inertiajs/vue3";
 import {
     AlertTriangle,
     CheckCircle2,
@@ -67,6 +78,7 @@ interface CitizenReport {
     status: "pending" | "verified" | "in_progress" | "resolved" | "rejected";
     is_anonymous: boolean;
     is_published: boolean;
+    admin_note: string | null;
     created_at: string;
 }
 
@@ -241,6 +253,43 @@ const statusOptions = [
     { value: "resolved", label: "Selesai" },
     { value: "rejected", label: "Ditolak" },
 ];
+
+// Edit Modal
+const isEditOpen = ref(false);
+const editingReport = ref<CitizenReport | null>(null);
+
+const form = useForm({
+    status: "",
+    admin_note: "",
+    is_published: false,
+});
+
+const openEditModal = (report: CitizenReport) => {
+    editingReport.value = report;
+    form.status = report.status;
+    form.admin_note = report.admin_note || "";
+    form.is_published = report.is_published;
+    isEditOpen.value = true;
+};
+
+const submitEdit = () => {
+    if (!editingReport.value) return;
+
+    // @ts-ignore
+    form.put(route('admin.citizen-reports.update', editingReport.value.id), {
+        onSuccess: () => {
+            isEditOpen.value = false;
+            editingReport.value = null;
+        },
+    });
+};
+
+// Auto-update status when publishing
+watch(() => form.is_published, (newVal) => {
+    if (newVal && form.status === 'pending') {
+        form.status = 'verified';
+    }
+});
 </script>
 
 <template>
@@ -375,31 +424,16 @@ const statusOptions = [
                                             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem as-child>
-                                                <Link :href="`/admin/citizen-reports/${report.id}`"
-                                                    class="flex items-center">
+                                                <a :href="`/laporan-warga/${report.slug}`" target="_blank"
+                                                    class="flex items-center cursor-pointer">
                                                     <Eye class="mr-2 h-4 w-4" />
-                                                    Lihat Detail
-                                                </Link>
+                                                    Lihat di Web
+                                                </a>
                                             </DropdownMenuItem>
-                                            <DropdownMenuSub>
-                                                <DropdownMenuSubTrigger>
-                                                    <Circle class="mr-2 h-4 w-4" />
-                                                    Ubah Status
-                                                </DropdownMenuSubTrigger>
-                                                <DropdownMenuPortal>
-                                                    <DropdownMenuSubContent>
-                                                        <DropdownMenuItem v-for="status in statusOptions"
-                                                            :key="status.value"
-                                                            :disabled="report.status === status.value"
-                                                            @click="handleStatusChange(report, status.value)">
-                                                            <component
-                                                                :is="statusConfig[status.value as keyof typeof statusConfig].icon"
-                                                                class="mr-2 h-4 w-4" />
-                                                            {{ status.label }}
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuSubContent>
-                                                </DropdownMenuPortal>
-                                            </DropdownMenuSub>
+                                            <DropdownMenuItem @click="openEditModal(report)">
+                                                <CheckCircle2 class="mr-2 h-4 w-4" />
+                                                Tindak Lanjut & Edit
+                                            </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem @click="handleDelete(report)" class="text-destructive">
                                                 <Trash2 class="mr-2 h-4 w-4" />
@@ -463,6 +497,63 @@ const statusOptions = [
                 </div>
             </div>
         </Card>
+
+        <!-- Edit Dialog -->
+        <Dialog v-model:open="isEditOpen">
+            <DialogContent class="sm:max-w-[500px]">
+                <DialogHeader>
+                    <DialogTitle>Tindak Lanjut Laporan</DialogTitle>
+                    <DialogDescription>
+                        Perbarui status dan berikan tanggapan untuk laporan ini.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <form @submit.prevent="submitEdit" class="space-y-4 py-4">
+                    <!-- Status -->
+                    <div class="space-y-2">
+                        <Label for="status">Status Laporan</Label>
+                        <Select v-model="form.status">
+                            <SelectTrigger>
+                                <SelectValue placeholder="Pilih status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem v-for="status in statusOptions" :key="status.value" :value="status.value">
+                                    {{ status.label }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <!-- Admin Note -->
+                    <div class="space-y-2">
+                        <Label for="admin_note">Tanggapan Admin (Feedback)</Label>
+                        <Textarea id="admin_note" v-model="form.admin_note" rows="4"
+                            placeholder="Tulis tanggapan untuk pelapor..." />
+                        <p class="text-xs text-muted-foreground">
+                            Tanggapan ini akan terlihat oleh pelapor di halaman detail laporan.
+                        </p>
+                    </div>
+
+                    <!-- Publish Toggle -->
+                    <div class="flex items-center space-x-2 pt-2">
+                        <Checkbox id="is_published" :checked="form.is_published"
+                            @update:checked="(val: boolean) => form.is_published = val" />
+                        <Label for="is_published" class="text-sm font-medium leading-none cursor-pointer">
+                            Publikasikan ke Laman Info Warga
+                        </Label>
+                    </div>
+
+                    <DialogFooter class="mt-6">
+                        <Button type="button" variant="outline" @click="isEditOpen = false">
+                            Batal
+                        </Button>
+                        <Button type="submit" :disabled="form.processing">
+                            Simpan Perubahan
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     </div>
 </template>
 

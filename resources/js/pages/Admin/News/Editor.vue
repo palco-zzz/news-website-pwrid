@@ -336,7 +336,8 @@ const pageTitle = computed(() => props.isEditing ? 'Edit Berita' : 'Tulis Berita
                         <div class="space-y-2">
                             <Label for="content">Isi Berita <span class="text-destructive">*</span></Label>
                             <TiptapEditor v-model="form.content" placeholder="Tulis isi berita lengkap di sini..."
-                                min-height="400px" :class="{ 'ring-2 ring-destructive': form.errors.content }" />
+                                min-height="400px" :class="{ 'ring-2 ring-destructive': form.errors.content }"
+                                @update:modelValue="(val: string) => form.content = val" />
                             <p class="text-xs text-muted-foreground">
                                 Gunakan toolbar di atas untuk formatting. Konten akan disimpan sebagai HTML.
                             </p>

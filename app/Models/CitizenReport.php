@@ -32,6 +32,7 @@ class CitizenReport extends Model
         'is_published',
         'published_at',
         'upvotes_count',
+        'admin_note',
     ];
 
     /**

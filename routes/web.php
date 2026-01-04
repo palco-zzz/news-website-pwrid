@@ -60,6 +60,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('/citizen-reports/{citizenReport}', [AdminCitizenReportController::class, 'show'])->name('citizen-reports.show');
     Route::patch('/citizen-reports/{citizenReport}/status', [AdminCitizenReportController::class, 'updateStatus'])->name('citizen-reports.update-status');
     Route::patch('/citizen-reports/{citizenReport}/publish', [AdminCitizenReportController::class, 'togglePublish'])->name('citizen-reports.toggle-publish');
+    Route::put('/citizen-reports/{citizenReport}', [AdminCitizenReportController::class, 'update'])->name('citizen-reports.update');
     Route::delete('/citizen-reports/{citizenReport}', [AdminCitizenReportController::class, 'destroy'])->name('citizen-reports.destroy');
 
     // Agenda Management

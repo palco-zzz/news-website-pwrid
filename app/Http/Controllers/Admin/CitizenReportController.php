@@ -78,6 +78,29 @@ class CitizenReportController extends Controller
     }
 
     /**
+     * Update the specified citizen report.
+     */
+    public function update(Request $request, CitizenReport $citizenReport)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,verified,in_progress,resolved,rejected',
+            'admin_note' => 'nullable|string',
+            'is_published' => 'boolean',
+        ]);
+
+        $validated['is_published'] = $request->boolean('is_published');
+
+        // Set published_at only when publishing and it's currently null
+        if ($validated['is_published'] && empty($citizenReport->published_at)) {
+            $validated['published_at'] = now();
+        }
+
+        $citizenReport->update($validated);
+
+        return back()->with('success', 'Laporan berhasil diperbarui.');
+    }
+
+    /**
      * Toggle the published status of the specified citizen report.
      */
     public function togglePublish(CitizenReport $citizenReport)

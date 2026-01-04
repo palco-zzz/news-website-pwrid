@@ -47,6 +47,17 @@
         <!-- Content -->
         <div class="prose prose-lg prose-slate max-w-none" v-html="report.content"></div>
 
+        <!-- Admin Response -->
+        <div v-if="report.admin_note" class="my-8 p-6 rounded-2xl bg-indigo-50 border border-indigo-100">
+            <h3 class="flex items-center gap-2 font-black text-indigo-900 mb-2">
+                <i class="fa-solid fa-bullhorn"></i>
+                Tanggapan Admin
+            </h3>
+            <p class="text-indigo-800 leading-relaxed">
+                {{ report.admin_note }}
+            </p>
+        </div>
+
         <!-- Action Buttons -->
         <div class="flex gap-4 mt-8 pt-8 border-t border-slate-100">
             <button
