@@ -53,7 +53,6 @@ import {
     Menu,
     Megaphone,
     Search,
-    Settings,
     Store,
     Users,
 } from 'lucide-vue-next';
@@ -102,13 +101,7 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
-const settingsNavItems: NavItem[] = [
-    {
-        title: 'Settings',
-        href: admin.settings.index().url,
-        icon: Settings,
-    },
-];
+
 </script>
 
 <template>
@@ -158,25 +151,7 @@ const settingsNavItems: NavItem[] = [
                         </SidebarMenu>
                     </SidebarGroup>
 
-                    <Separator class="my-2" />
-
-                    <!-- Settings Navigation -->
-                    <SidebarGroup>
-                        <SidebarGroupLabel class="text-xs uppercase tracking-wider text-muted-foreground/70">
-                            Pengaturan
-                        </SidebarGroupLabel>
-                        <SidebarMenu>
-                            <SidebarMenuItem v-for="item in settingsNavItems" :key="item.title">
-                                <SidebarMenuButton as-child :is-active="urlIsActive(item.href, page.url)"
-                                    :tooltip="item.title">
-                                    <Link :href="item.href">
-                                        <component :is="item.icon" class="h-4 w-4" />
-                                        <span>{{ item.title }}</span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroup>
+                    <!-- Settings Navigation Removed -->
                 </SidebarContent>
 
                 <SidebarFooter class="border-t border-sidebar-border/50">
@@ -255,20 +230,7 @@ const settingsNavItems: NavItem[] = [
                                     <component :is="item.icon" class="h-4 w-4" />
                                     {{ item.title }}
                                 </Link>
-                                <Separator class="my-2" />
-                                <span
-                                    class="px-2 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                    Pengaturan
-                                </span>
-                                <Link v-for="item in settingsNavItems" :key="item.title" :href="item.href" :class="[
-                                    'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                                    urlIsActive(item.href, page.url)
-                                        ? 'bg-indigo-50 text-indigo-700'
-                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
-                                ]">
-                                    <component :is="item.icon" class="h-4 w-4" />
-                                    {{ item.title }}
-                                </Link>
+
                             </nav>
                         </SheetContent>
                     </Sheet>
