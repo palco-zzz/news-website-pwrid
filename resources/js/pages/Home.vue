@@ -9,7 +9,7 @@
     <div class="grid grid-cols-12 gap-10">
         <div class="col-span-12 lg:col-span-8 space-y-12">
             <h2 class="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">Terbaru di Kota</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
                 <NewsCard v-for="(article, index) in computedArticles" :key="index" :title="article.title"
                     :image-url="article.imageUrl" :slug="article.slug" />
             </div>

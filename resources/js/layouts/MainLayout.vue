@@ -1,26 +1,6 @@
 <template>
     <div class="text-slate-900 overflow-x-hidden font-sans bg-[var(--surface)] min-h-screen flex flex-col">
-        <!-- Top Info Bar (Desktop Only) -->
-        <div
-            class="hidden lg:block bg-slate-950 text-white py-2.5 text-[10px] font-bold tracking-[0.15em] uppercase border-b border-white/5">
-            <div class="container mx-auto px-8 flex justify-between items-center">
-                <div class="flex gap-8">
-                    <span class="flex items-center gap-2"><i class="fa-solid fa-calendar-day text-indigo-400"></i> Rabu,
-                        22 Mei
-                        2024</span>
-                    <span class="flex items-center gap-2"><i
-                            class="fa-solid fa-temperature-three-quarters text-indigo-400"></i>
-                        Purworejo, 32°C</span>
-                </div>
-                <div class="flex gap-6 items-center">
-                    <a href="#" class="hover:text-indigo-400 transition-colors">E-Paper</a>
-                    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
-                    <a href="#" class="hover:text-indigo-400 transition-colors">Redaksi</a>
-                    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
-                    <a href="#" class="hover:text-indigo-400 transition-colors">Iklan</a>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Navigation -->
         <header class="glass-nav sticky top-0 z-50 border-b border-slate-100/50">

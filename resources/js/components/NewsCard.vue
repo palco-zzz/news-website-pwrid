@@ -1,16 +1,19 @@
 <template>
     <Link :href="href" class="block">
-        <article class="m3-card group cursor-pointer">
-            <div class="relative rounded-[2.5rem] overflow-hidden mb-4 aspect-[16/10] bg-slate-100">
+        <article class="m3-card group cursor-pointer flex flex-row items-center gap-5 md:block">
+            <div
+                class="relative shrink-0 w-28 h-28 rounded-2xl md:w-full md:h-auto md:aspect-[16/10] md:rounded-[2.5rem] overflow-hidden md:mb-4 bg-slate-100">
                 <img :src="imageSrc" loading="lazy"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     :alt="title" @error="handleImageError">
             </div>
-            <h3
-                class="text-xl font-extrabold text-slate-950 leading-tight group-hover:text-indigo-600 transition-colors">
-                {{ title }}</h3>
-            <div v-if="timestamp" class="mt-2 text-xs font-bold text-slate-400">
-                {{ timestamp }}
+            <div class="flex-1 min-w-0">
+                <h3
+                    class="text-base font-extrabold text-slate-950 leading-tight md:text-xl group-hover:text-indigo-600 transition-colors line-clamp-3 md:line-clamp-none">
+                    {{ title }}</h3>
+                <div v-if="timestamp" class="mt-2 text-xs font-bold text-slate-400">
+                    {{ timestamp }}
+                </div>
             </div>
         </article>
     </Link>
