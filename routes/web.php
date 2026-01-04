@@ -17,8 +17,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/trending', [NewsController::class, 'trending'])->name('news.trending');
 Route::get('/berita/{slug}', [NewsController::class, 'show'])->name('news.show');
 
-Route::get('/info-warga', [CitizenReportController::class, 'index'])->name('citizen-reports.index');
-Route::get('/info-warga/{slug}', [CitizenReportController::class, 'show'])->name('citizen-reports.show');
+Route::get('/laporan-warga', [CitizenReportController::class, 'index'])->name('citizen-reports.index');
+Route::post('/laporan-warga', [CitizenReportController::class, 'store'])->name('citizen-reports.store');
+Route::get('/laporan-warga/{slug}', [CitizenReportController::class, 'show'])->name('citizen-reports.show');
 
 Route::get('/umkm', [UmkmController::class, 'index'])->name('umkm.index');
 Route::get('/umkm/{slug}', [UmkmController::class, 'show'])->name('umkm.show');

@@ -30,6 +30,7 @@ defineOptions({ layout: AdminLayout });
 interface CitizenReport {
     id: number;
     title: string;
+    slug: string;
     reporter_name: string | null;
     category: string;
     status: 'pending' | 'verified' | 'in_progress' | 'resolved' | 'rejected';
@@ -177,7 +178,8 @@ const formatRelativeTime = (dateString: string) => {
                                 <TableHead>Pelapor</TableHead>
                                 <TableHead>Kategori</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead class="text-right">Waktu</TableHead>
+                                <TableHead>Waktu</TableHead>
+                                <TableHead class="text-right">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -203,14 +205,21 @@ const formatRelativeTime = (dateString: string) => {
                                             {{ getStatusBadge(report.status).label }}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell class="text-right text-muted-foreground text-sm">
+                                    <TableCell class="text-muted-foreground text-sm">
                                         {{ formatRelativeTime(report.created_at) }}
+                                    </TableCell>
+                                    <TableCell class="text-right">
+                                        <Button variant="ghost" size="sm" as-child>
+                                            <a :href="`/laporan-warga/${report.slug}`" target="_blank">
+                                                Lihat
+                                            </a>
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             </template>
                             <template v-else>
                                 <TableRow>
-                                    <TableCell colspan="5" class="text-center py-8 text-muted-foreground">
+                                    <TableCell colspan="6" class="text-center py-8 text-muted-foreground">
                                         <Megaphone class="h-8 w-8 mx-auto mb-2 opacity-50" />
                                         <p>Belum ada laporan warga</p>
                                     </TableCell>

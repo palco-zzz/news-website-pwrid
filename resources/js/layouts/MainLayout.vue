@@ -64,7 +64,7 @@
                                 ? 'bg-white shadow-sm ring-1 ring-slate-200/50 text-indigo-700'
                                 : 'text-slate-600 hover:text-indigo-600',
                         ]">Trending</Link>
-                        <Link href="/info-warga" :class="[
+                        <Link href="/laporan-warga" :class="[
                             'nav-pill px-6 py-2 rounded-full text-xs font-bold transition-all',
                             isActive('CitizenReport')
                                 ? 'bg-white shadow-sm ring-1 ring-slate-200/50 text-indigo-700'
@@ -91,7 +91,7 @@
                             aria-label="Search">
                             <i class="fa-solid fa-magnifying-glass text-lg"></i>
                         </button>
-                        <Link href="/info-warga"
+                        <Link href="/laporan-warga"
                             class="hidden sm:flex bg-indigo-600 text-white px-5 sm:px-7 py-2.5 rounded-full font-bold text-xs sm:text-sm shadow-xl shadow-indigo-100 hover:shadow-indigo-200 active:scale-95 transition-all items-center gap-2">
                             <i class="fa-solid fa-plus-circle"></i>
                             <span>Lapor Lur!</span>
@@ -137,7 +137,7 @@
                     <i class="fa-solid fa-fire text-lg"></i>
                     <span class="text-[8px] font-black uppercase">Trending</span>
                 </Link>
-                <Link href="/info-warga"
+                <Link href="/laporan-warga"
                     class="w-14 h-14 bg-indigo-600 rounded-[1.5rem] flex items-center justify-center text-white shadow-2xl shadow-indigo-300 -mt-12 border-[6px] border-[var(--surface)] active:scale-90 transition-transform cursor-pointer">
                     <i class="fa-solid fa-plus text-xl"></i>
                 </Link>
@@ -177,7 +177,8 @@
                         </Link>
                         <Link href="/trending" @click="toggleDrawer(false)" class="text-left hover:text-indigo-600">
                             Trending Viral</Link>
-                        <Link href="/info-warga" @click="toggleDrawer(false)" class="text-left hover:text-indigo-600">
+                        <Link href="/laporan-warga" @click="toggleDrawer(false)"
+                            class="text-left hover:text-indigo-600">
                             Info Warga</Link>
                         <Link href="/umkm" @click="toggleDrawer(false)" class="text-left hover:text-indigo-600">UMKM
                             Lokal</Link>

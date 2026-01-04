@@ -6,8 +6,49 @@ use App\Models\CitizenReport;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
 class CitizenReportController extends Controller
 {
+    /**
+     * Store a newly created citizen report.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|string|max:100',
+            'location' => 'required|string|max:255',
+            'content' => 'required|string',
+            'image' => 'nullable|image|max:10240', // 10MB max
+            'is_anonymous' => 'boolean',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('citizen-reports', 'public');
+        }
+
+        $validated['slug'] = Str::slug($validated['title']) . '-' . Str::random(6);
+        $validated['status'] = 'pending';
+        $validated['is_published'] = false;
+        
+        // Handle reporter info
+        if ($request->user()) {
+            $validated['reporter_id'] = $request->user()->id;
+            $validated['reporter_name'] = $request->user()->name;
+        } else {
+             $validated['reporter_name'] = $request->input('reporter_name', 'Warga Sipil');
+        }
+
+        // Handle boolean checkbox explicitly
+        $validated['is_anonymous'] = $request->boolean('is_anonymous');
+
+        CitizenReport::create($validated);
+
+        return back()->with('success', 'Laporan berhasil dikirim dan menunggu verifikasi admin.');
+    }
     /**
      * Display the citizen reports listing page (Info Warga).
      */

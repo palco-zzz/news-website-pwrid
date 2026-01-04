@@ -369,7 +369,7 @@ const authorInitials = computed(() => {
                                 Punya informasi atau keluhan? Laporkan sekarang dan jadilah bagian dari perubahan
                                 Purworejo!
                             </p>
-                            <Link href="/info-warga"
+                            <Link href="/laporan-warga"
                                 class="inline-flex items-center gap-2 bg-white text-indigo-600 px-6 py-3 rounded-full font-bold text-sm hover:bg-indigo-50 transition-colors">
                                 Buat Laporan
                                 <ArrowRight class="h-4 w-4" />

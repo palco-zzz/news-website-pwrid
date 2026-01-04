@@ -27,6 +27,7 @@ class DashboardController extends Controller
         $recentReports = CitizenReport::select([
             'id',
             'title',
+            'slug',
             'reporter_name',
             'category',
             'status',

@@ -82,10 +82,18 @@ class CitizenReportController extends Controller
      */
     public function togglePublish(CitizenReport $citizenReport)
     {
-        $citizenReport->update([
-            'is_published' => !$citizenReport->is_published,
-            'published_at' => !$citizenReport->is_published ? now() : null,
-        ]);
+        $newPublishedState = !$citizenReport->is_published;
+
+        $updateData = [
+            'is_published' => $newPublishedState,
+        ];
+
+        // Set published_at only when publishing and it's currently null
+        if ($newPublishedState && empty($citizenReport->published_at)) {
+            $updateData['published_at'] = now();
+        }
+
+        $citizenReport->forceFill($updateData)->save();
 
         $message = $citizenReport->is_published
             ? 'Laporan berhasil dipublikasikan.'
