@@ -13,17 +13,17 @@
                             aria-label="Menu">
                             <i class="fa-solid fa-bars-staggered text-lg"></i>
                         </button>
-                        <Link href="/" class="flex items-center gap-2 sm:gap-3 group">
+                        <Link href="/" class="flex items-center gap-2.5 sm:gap-3 group">
                             <div
                                 class="w-9 h-9 sm:w-11 sm:h-11 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:rotate-3 transition-transform">
                                 <span class="text-white font-black text-lg sm:text-xl">P</span>
                             </div>
-                            <div class="flex flex-col leading-none">
+                            <div class="flex flex-col justify-center leading-tight">
                                 <span
                                     class="text-lg sm:text-2xl font-black tracking-tighter text-slate-950">Purworejonya<span
                                         class="text-indigo-600">.id</span></span>
                                 <span
-                                    class="hidden sm:block text-[8px] font-bold text-slate-400 uppercase tracking-[0.3em] mt-0.5">Media
+                                    class="hidden sm:block text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">Media
                                     Digital Warga</span>
                             </div>
                         </Link>
@@ -108,14 +108,14 @@
                     isActive('Home') ? 'text-indigo-600' : 'text-slate-400',
                 ]">
                     <i class="fa-solid fa-house text-lg"></i>
-                    <span class="text-[8px] font-black uppercase">Home</span>
+                    <span class="text-[10px] font-black uppercase">Home</span>
                 </Link>
                 <Link href="/trending" :class="[
                     'flex flex-col items-center gap-1 nav-bottom',
                     isActive('News/Trending') ? 'text-indigo-600' : 'text-slate-400',
                 ]">
                     <i class="fa-solid fa-fire text-lg"></i>
-                    <span class="text-[8px] font-black uppercase">Trending</span>
+                    <span class="text-[10px] font-black uppercase">Trending</span>
                 </Link>
                 <Link href="/laporan-warga"
                     class="w-14 h-14 bg-indigo-600 rounded-[1.5rem] flex items-center justify-center text-white shadow-2xl shadow-indigo-300 -mt-12 border-[6px] border-[var(--surface)] active:scale-90 transition-transform cursor-pointer">
@@ -126,11 +126,11 @@
                     isActive('Umkm') ? 'text-indigo-600' : 'text-slate-400',
                 ]">
                     <i class="fa-solid fa-store text-lg"></i>
-                    <span class="text-[8px] font-black uppercase">UMKM</span>
+                    <span class="text-[10px] font-black uppercase">UMKM</span>
                 </Link>
                 <button class="flex flex-col items-center gap-1 text-slate-400">
                     <i class="fa-solid fa-user text-lg"></i>
-                    <span class="text-[8px] font-black uppercase">Profil</span>
+                    <span class="text-[10px] font-black uppercase">Profil</span>
                 </button>
             </div>
         </div>
